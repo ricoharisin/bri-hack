@@ -1,16 +1,18 @@
 {
-	"name": "NodejsStarterApp",
-	"version": "0.0.1",
-	"private": true,
-	"scripts": {
-		"start": "node app.js"
-	},
-	"dependencies": {
-		"express": "4.13.x",
-		"cfenv": "1.0.x"
-	},
-	"repository": {},
-	"engines": {
-		"node": "4.x"
-	} 
+  "name": "sonoda",
+  "version": "0.0.0",
+  "description": "api basic",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "",
+  "license": "BSD-2-Clause",
+  "dependencies": {
+    "express": "~4.13.3",
+    "mysql": "^2.5.4",
+    "body-parser" : "~1.14.2",
+    "request-promise" : "~1.0.2",
+    "figlet" : "~1.1.1"
+  }
 }

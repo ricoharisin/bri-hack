@@ -1,0 +1,8 @@
+{
+	"mysql" : {
+		"user" : "rico",
+		"password" : "tokopedia789",
+		"host" : "localhost",
+		"database" : "sonoda"
+	}
+}

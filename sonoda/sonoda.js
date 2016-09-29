@@ -13,10 +13,15 @@ sonoda.prototype.start = function() {
 
     app.use(bodyParser.json());
 
-    app.get('/testcall', function (req, res) {
+    app.get('/conf', function (req, res) {
         console.log("test %j",req.body);
         res.send(appEnv.getServices());
         //self.testcall(req.body, res);
+    });
+
+    app.get('/register', function (req, res) {
+        console.log("test %j",req.body);
+        self.testcall(req.body, res);
     });
 
     

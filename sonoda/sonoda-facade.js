@@ -11,7 +11,7 @@ sonodaFacade.prototype.register = function(params) {
 
 	connection.connect();
 
-  var q = "insert into ws_personal_user values ("+params.user_id+", 0, 0, 0, 0, 0);";
+  var q = "insert into test_table values (0, 'asdasd');";
 
   connection.query(q ,function(err, rows, fields) {
     if (!err) {

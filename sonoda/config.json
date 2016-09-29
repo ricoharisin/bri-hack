@@ -1,8 +1,8 @@
 {
 	"mysql" : {
-		"user" : "rico",
-		"password" : "tokopedia789",
-		"host" : "localhost",
-		"database" : "sonoda"
+		"user" : "b153ec39c46e2b",
+		"password" : "fc939315",
+		"host" : "us-cdbr-iron-east-04.cleardb.net",
+		"database" : "ad_d0f9674be7bde87"
 	}
 }

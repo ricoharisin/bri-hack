@@ -9,18 +9,19 @@ sonoda.prototype.start = function() {
     var bodyParser = require('body-parser');
     var self = this;
     var cfenv = require('cfenv');
+    var appEnv = cfenv.getAppEnv();
 
     app.use(bodyParser.json());
 
     app.get('/testcall', function (req, res) {
         console.log("test %j",req.body);
-        res.send("{ hello world !}");
+        res.send(appEnv.getServices());
         //self.testcall(req.body, res);
     });
 
-    var appEnv = cfenv.getAppEnv();
+    
     app.listen(appEnv.port, '0.0.0.0', function() {
-        
+
       console.log("server starting on " + appEnv.url);
     });
 }

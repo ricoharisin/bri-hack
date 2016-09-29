@@ -8,6 +8,7 @@ sonoda.prototype.start = function() {
     var app = express();
     var bodyParser = require('body-parser');
     var self = this;
+    var cfenv = require('cfenv');
 
     app.use(bodyParser.json());
 
@@ -17,26 +18,11 @@ sonoda.prototype.start = function() {
         //self.testcall(req.body, res);
     });
 
-
-    var server = app.listen(3000, function () {
-        var figlet = require('figlet');
-
-        figlet('SONODA', function(err, data) {
-            if (err) {
-                console.log('Something went wrong...');
-                console.dir(err);
-                return;
-            }
-            console.log(data)
-            console.log("Sonoda is up and running!! have a nice day!");
-
-            return;
-        });
-
-        return;
+    var appEnv = cfenv.getAppEnv();
+    app.listen(appEnv.port, '0.0.0.0', function() {
+        
+      console.log("server starting on " + appEnv.url);
     });
-
-    return;
 }
 
 sonoda.prototype.testcall = function(query, res) {

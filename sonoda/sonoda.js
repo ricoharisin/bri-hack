@@ -11,28 +11,16 @@ sonoda.prototype.start = function() {
 
     app.use(bodyParser.json());
 
-    app.post('/testcall', function (req, res) {
+    app.get('/testcall', function (req, res) {
         console.log("test %j",req.body);
-        res.json("{ hello world !}");
+        res.send("{ hello world !}");
         //self.testcall(req.body, res);
     });
 
 
     var server = app.listen(3000, function () {
-        var figlet = require('figlet');
-
-        figlet('SONODA', function(err, data) {
-            if (err) {
-                console.log('Something went wrong...');
-                console.dir(err);
-                return;
-            }
-            console.log(data)
-            console.log("Sonoda is up and running!! have a nice day!");
-
-            return;
-        });
-
+        console.log("Sonoda is up and running!! have a nice day!");
+        
         return;
     });
 

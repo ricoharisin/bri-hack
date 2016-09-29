@@ -1,0 +1,8 @@
+applications:
+- path: .
+  memory: 256M
+  instances: 1
+  domain: mybluemix.net
+  name: hack-bri-dev
+  host: hack-bri-dev
+  disk_quota: 1024M

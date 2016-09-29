@@ -19,8 +19,20 @@ sonoda.prototype.start = function() {
 
 
     var server = app.listen(3000, function () {
-        console.log("Sonoda is up and running!! have a nice day!");
-        
+        var figlet = require('figlet');
+
+        figlet('SONODA', function(err, data) {
+            if (err) {
+                console.log('Something went wrong...');
+                console.dir(err);
+                return;
+            }
+            console.log(data)
+            console.log("Sonoda is up and running!! have a nice day!");
+
+            return;
+        });
+
         return;
     });
 

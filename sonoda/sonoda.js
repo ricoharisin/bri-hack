@@ -149,83 +149,82 @@ sonoda.prototype.testcall = function(query, res) {
 }
 
 sonoda.prototype.dialognewdebt = function(query, res) {
-    //call function here to facade
-    var asyncTask = require('async');
-    var sonodaFacade = require("./sonoda-facade.js");
+    var mysql      = require('mysql');
+    var conf = require('./config.json');
+    var connection = mysql.createConnection(conf.mysql);
+    var self = this;
+    var params = query;
 
-    asyncTask.waterfall([
-        function(callback) {
-            sonodaFacade.on("success", function(response) {
-                return callback(null, response);
-            });
+    connection.connect();
 
-            sonodaFacade.on("error", function(err){
-                return callback(err, null);
-            });
+    var q = "select * from ws_user where user_phone = "+params.user_phone+";";
 
-            sonodaFacade.dialognewdebt(query);
+    console.log(q);
+
+    connection.query(q ,function(err, rows, fields) {
+        console.log(rows);
+
+        if (!err) {
+          self.responseGeneration(res, null, rows[0]);
+        } else {
+          self.responseGenerationError(res, err);
         }
-    ], function(err, result) {
-        if (err) return res.status(500).json(err);
 
-        return res.json(result);
-    });
-
-    return;
+        connection.destroy();
+     });
 }
+
 
 sonoda.prototype.dialognewcredit = function(query, res) {
     //call function here to facade
-    var asyncTask = require('async');
-    var sonodaFacade = require("./sonoda-facade.js");
+    var mysql      = require('mysql');
+    var conf = require('./config.json');
+    var connection = mysql.createConnection(conf.mysql);
+    var self = this;
+    var params = query;
 
-    asyncTask.waterfall([
-        function(callback) {
-            sonodaFacade.on("success", function(response) {
-                return callback(null, response);
-            });
+    connection.connect();
 
-            sonodaFacade.on("error", function(err){
-                return callback(err, null);
-            });
+    var q = "select * from ws_user where user_phone = "+params.user_phone+";";
 
-            sonodaFacade.dialognewcredit(query);
+    console.log(q);
+
+    connection.query(q ,function(err, rows, fields) {
+        console.log(rows);
+
+        if (!err) {
+          self.responseGeneration(res, null, rows[0]);
+        } else {
+          self.responseGenerationError(res, err);
         }
-    ], function(err, result) {
-        if (err) return res.status(500).json(err);
-
-        return res.json(result);
+        connection.destroy();
     });
 
-    return;
+    
 }
 
 sonoda.prototype.createnewdebt = function(query, res) {
-    //call function here to facade
-    var asyncTask = require('async');
-    var sonodaFacade = require("./sonoda-facade.js");
+    var mysql      = require('mysql');
+    var conf = require('./config.json');
+    var connection = mysql.createConnection(conf.mysql);
+    var self = this;
+    var params = query;
 
-    asyncTask.each([
-        function(callback) {
-            sonodaFacade.on("success", function(response) {
-                console.log("success hehe");
-                callback(null, response);
-            });
+    connection.connect();
 
-            sonodaFacade.on("error", function(err){
-                console.log("fauled huhuhu");
-                return callback(err, null);
-            });
+    var q = "insert into ws_debt (debt_user_id, credit_user_id, debt_amt, debt_desc, debt_status) values ("+params.user_id+",  "+params.to_user_id+",  "+params.amt+",  '"+params.desc+"', -1);";
 
-            sonodaFacade.createnewdebt(query);
+    console.log(q);
+
+    connection.query(q ,function(err, rows, fields) {
+        if (!err) {
+          self.responseGeneration(res, null, {"success" : 1});
+        } else {
+          self.responseGenerationError(res, err);
         }
-    ], function(err, result) {
-        if (err) return res.status(500).json(err);
 
-        return res.json(result);
-    });
-
-    return;
+        connection.destroy();
+    }); 
 }
 
 sonoda.prototype.listdebttest = function(query, res) {

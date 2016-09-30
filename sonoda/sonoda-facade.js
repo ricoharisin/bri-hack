@@ -54,26 +54,23 @@ sonodaFacade.prototype.dialognewdebt = function(params) {
 sonodaFacade.prototype.dialognewcredit = function(params) {
     var mysql      = require('mysql');
     var conf = require('./config.json');
-    var connection = mysql.createConnection(conf.mysql);
+    var pool = mysql.createPool(conf.mysql);
     var self = this;
 
-    connection.connect();
+    pool.getConnection(function(err, connection) {
+        var q = "select * from ws_user where user_phone = "+params.user_phone+";";
+        console.log(q);
+        connection.query(q ,function(err, rows, fields) {
+            connection.release();
+            console.log(rows);
 
-    var q = "select * from ws_user where user_phone = "+params.user_phone+";";
-
-    console.log(q);
-
-    connection.query(q ,function(err, rows, fields) {
-        console.log(rows);
-
-    if (!err) {
-      self.success({ "data" : rows[0]});
-    } else {
-      self.error(err);
-    }
+            if (!err) {
+              self.success({ "data" : rows[0]});
+            } else {
+              self.error(err);
+            }
+        });
     });
-
-    connection.end();
 
 }
 

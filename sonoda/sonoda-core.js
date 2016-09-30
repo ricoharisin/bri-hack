@@ -1,6 +1,9 @@
 var eventEmitter = new require('events').EventEmitter();
 var sonodaCore = function() {};
 
+var soap = require('soap');
+var briUrl = 'http://hackathon.bri.co.id/BRIHackathon.asmx?wsdl';
+
 sonodaCore.prototype = Object.create(require('events').EventEmitter.prototype);
 
 sonodaCore.prototype.getUserPersonalDepartment = function(params) {
@@ -155,6 +158,202 @@ sonodaCore.prototype.getRandomProduct = function(page) {
 		    .catch(function (err) {
 				console.log(err);
 		    });
+}
+
+sonodaCore.prototype.getDataFromApi = function(data, listDep, index) {
+	var rp = require('request-promise');
+	var self = this;
+	var detailDep = listDep[index];
+
+	var options = {
+		uri: 'http://ajax.tokopedia.com/search/v1/product',
+		qs: {
+			sc: detailDep.dep_id,
+			rows: detailDep.score,
+			start: detailDep.start,
+			ob: '7'
+		},
+		json: true // Automatically parses the JSON string in the response
+	};
+
+	rp(options)
+		.then(function(repos) {
+			console.log(repos);
+			data = data.concat(repos.data);
+			console.log(listDep);
+			index = index + 1;
+			if (index < listDep.length) {
+				self.getDataFromApi(data, listDep, index);
+			} else {
+				var result = {
+					'data': data
+				};
+				self.emit("success", result);
+			}
+		})
+		.catch(function(err) {
+			console.log(err);
+		});
+}
+
+sonodaCore.prototype.getRandomProduct = function(page) {
+	var self = this;
+	var rp = require('request-promise');
+	var options = {
+		uri: 'http://ajax.tokopedia.com/search/v1/product',
+		qs: {
+			rows: 10,
+			start: page * 10,
+			ob: '7'
+		},
+		json: true // Automatically parses the JSON string in the response
+	};
+
+	rp(options)
+		.then(function(repos) {
+			var result = {
+				'data': repos.data
+			};
+			self.emit("success", result);
+		})
+		.catch(function(err) {
+			console.log(err);
+		});
+}
+
+sonodaCore.prototype.regiterMerchant = function(params) {
+	var self = this;
+	soap.createClient(briUrl, function(err, client) {
+		client.RegistrasiMerchant(params, function(err, result) {
+			if (err) {
+				self.emit("error", err);
+				console.log("error registerMerchant");
+			} else {
+				var registrasiMerchantResult = JSON.parse(result.RegistrasiMerchantResult);
+				self.emit("success", registrasiMerchantResult);
+			}
+		});
+	});
+}
+
+sonodaCore.prototype.registrasiTBank = function(params) {
+	var self = this;
+	soap.createClient(briUrl, function(err, client) {
+		client.RegistrasiTBank(params, function(err, result) {
+			if (err) {
+				self.emit("error", err);
+				console.log("error registrasiTBank");
+			} else {
+				var response = JSON.parse(result.RegistrasiTBankResult);
+				self.emit("success", response);
+			}
+		});
+	});
+}
+
+sonodaCore.prototype.infoSaldoTBank = function(params) {
+	var self = this;
+	soap.createClient(briUrl, function(err, client) {
+		client.InfoSaldoTBank(params, function(err, result) {
+			if (err) {
+				self.emit("error", err);
+				console.log("error infoSaldoTBank");
+			} else {
+				var response = JSON.parse(result.InfoSaldoTBankResult);
+				self.emit("success", response);
+			}
+		});
+	});
+}
+
+sonodaCore.prototype.inquiryBelanjaTBank = function(params) {
+	var self = this;
+	soap.createClient(briUrl, function(err, client) {
+		client.InquiryBelanjaTBank(params, function(err, result) {
+			if (err) {
+				self.emit("error", err);
+				console.log("error inquiryBelanjaTBank");
+			} else {
+				var response = JSON.parse(result.InquiryBelanjaTBankResult);
+				self.emit("success", response);
+			}
+		});
+	});
+}
+
+sonodaCore.prototype.requestTokenTBank = function(params) {
+	var self = this;
+	soap.createClient(briUrl, function(err, client) {
+		client.RequestTokenTBank(params, function(err, result) {
+			if (err) {
+				self.emit("error", err);
+				console.log("error requestTokenTBank");
+			} else {
+				var response = JSON.parse(result.RequestTokenTBankResult);
+				self.emit("success", response);
+			}
+		});
+	});
+}
+
+sonodaCore.prototype.topUpTBank = function(params) {
+	var self = this;
+	soap.createClient(briUrl, function(err, client) {
+		client.TopUpTBank(params, function(err, result) {
+			if (err) {
+				self.emit("error", err);
+				console.log("error topUpTBank");
+			} else {
+				var response = JSON.parse(result.TopUpTBankResult);
+				self.emit("success", response);
+			}
+		});
+	});
+}
+
+sonodaCore.prototype.transferTBank = function(params) {
+	var self = this;
+	soap.createClient(briUrl, function(err, client) {
+		client.TransferTBank(params, function(err, result) {
+			if (err) {
+				self.emit("error", err);
+				console.log("error transferTBank");
+			} else {
+				var response = JSON.parse(result.TransferTBankResult);
+				self.emit("success", response);
+			}
+		});
+	});
+}
+
+sonodaCore.prototype.belanjaTBank = function(params) {
+	var self = this;
+	soap.createClient(briUrl, function(err, client) {
+		client.BelanjaTBank(params, function(err, result) {
+			if (err) {
+				self.emit("error", err);
+				console.log("error belanjaTBank");
+			} else {
+				var response = JSON.parse(result.BelanjaTBankResult);
+				self.emit("success", response);
+			}
+		});
+	});
+}
+
+sonodaCore.prototype.gantiPINTBank = function(params) {
+	var self = this;
+	soap.createClient(briUrl, function(err, client) {
+		client.GantiPINTBank(params, function(err, result) {
+			if (err) {
+				self.emit("error", err);
+				console.log("error gantiPINTBank");
+			} else {
+				var response = JSON.parse(result.GantiPINTBankResult);
+				self.emit("success", response);
+			}
+		});
+	});
 }
 
 module.exports = new sonodaCore();

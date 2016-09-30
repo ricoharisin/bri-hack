@@ -418,6 +418,10 @@ sonodaFacade.prototype.infoSaldoTBank = function(params) {
     sonodaCore.on("error", function(err) {
         self.errorSecond(err);
     });
+
+    sonodaCore.on("error", function(err) {
+        self.error(err);
+    });
 }
 
 sonodaFacade.prototype.inquiryBelanjaTBank = function(params) {
@@ -448,7 +452,7 @@ sonodaFacade.prototype.requestTokenTBank = function(params) {
     });
 
     sonodaCore.on("error", function(err) {
-        self.successSecond(err);
+        self.errorSecond(err);
     });
 }
 

@@ -1,5 +1,7 @@
 {
-	"debt_amt" : "20000",
-	"balance_amt" : "14000",
-	"credit_amt" : "12000"
+	"data" : {
+		"debt_amt" : "20000",
+		"balance_amt" : "14000",
+		"credit_amt" : "12000"
+	}
 }

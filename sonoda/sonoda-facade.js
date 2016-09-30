@@ -48,6 +48,79 @@ sonodaFacade.prototype.updateUser = function(params) {
     });
 }
 
+sonodaFacade.prototype.dialognewdebt = function(params) {
+    var mysql      = require('mysql');
+    var conf = require('./config.json');
+    var connection = mysql.createConnection(conf.mysql);
+    var self = this;
+
+    connection.connect();
+
+    var q = "select * from ws_user where user_phone = "+params.user_phone+";";
+
+    console.log(q);
+
+    connection.query(q ,function(err, rows, fields) {
+        console.log(rows);
+
+        if (!err) {
+          self.success({ "data" : rows[0]});
+        } else {
+          self.error(err);
+        }
+     });
+
+    connection.end();
+
+}
+
+sonodaFacade.prototype.dialognewcredit = function(params) {
+    var mysql      = require('mysql');
+    var conf = require('./config.json');
+    var pool = mysql.createPool(conf.mysql);
+    var self = this;
+
+    pool.getConnection(function(err, connection) {
+        var q = "select * from ws_user where user_phone = "+params.user_phone+";";
+        console.log(q);
+        connection.query(q ,function(err, rows, fields) {
+            connection.release();
+            console.log(rows);
+
+            if (!err) {
+              self.success({ "data" : rows[0]});
+            } else {
+              self.error(err);
+            }
+        });
+    });
+
+}
+
+sonodaFacade.prototype.createnewdebt = function(params) {
+    var mysql      = require('mysql');
+    var conf = require('./config.json');
+    var connection = mysql.createConnection(conf.mysql);
+    var self = this;
+
+    connection.connect();
+
+    var q = "insert into ws_debt (debt_user_id, credit_user_id, debt_amt, debt_desc, debt_status) values ("+params.user_id+",  "+params.to_user_id+",  "+params.amt+",  '"+params.desc+"', -1);";
+
+    console.log(q);
+
+    connection.query(q ,function(err, rows, fields) {
+        if (!err) {
+          self.success({ "data" : { "success" : 1 }});
+        } else {
+          self.error(err);
+        }
+    }); 
+
+    connection.end();
+
+}
+
 sonodaFacade.prototype.impressionProduct = function(params) {
     var mysql      = require('mysql');
     var conf = require('./config.json');

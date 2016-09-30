@@ -59,7 +59,7 @@ sonoda.prototype.start = function() {
 
     app.post('/v0/createnewcredit', function (req, res) {
         console.log("test %j",req.body);
-        self.createnewdebt(req.body, res);
+        self.createnewcredit(req.body, res);
     })
 
     app.get('/v0/deposit', function (req, res) {

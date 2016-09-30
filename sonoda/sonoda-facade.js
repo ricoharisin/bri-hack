@@ -25,6 +25,50 @@ sonodaFacade.prototype.register = function(params) {
 
 }
 
+sonodaFacade.prototype.dialognewdebt = function(params) {
+    var mysql      = require('mysql');
+    var conf = require('./config.json');
+    var connection = mysql.createConnection(conf.mysql);
+    var self = this;
+
+    connection.connect();
+
+    var q = "select * from ws_user where user_phone = "+params.user_phone+";";
+
+    connection.query(q ,function(err, rows, fields) {
+    if (!err) {
+      self.success({ "data" : rows[0]});
+    } else {
+      self.error(err);
+    }
+    });
+
+    connection.end();
+
+}
+
+sonodaFacade.prototype.dialognewcredit = function(params) {
+    var mysql      = require('mysql');
+    var conf = require('./config.json');
+    var connection = mysql.createConnection(conf.mysql);
+    var self = this;
+
+    connection.connect();
+
+    var q = "select * from ws_user where user_phone = "+params.user_phone+";";
+
+    connection.query(q ,function(err, rows, fields) {
+    if (!err) {
+      self.success({ "data" : rows[0]});
+    } else {
+      self.error(err);
+    }
+    });
+
+    connection.end();
+
+}
+
 sonodaFacade.prototype.impressionProduct = function(params) {
     var mysql      = require('mysql');
     var conf = require('./config.json');

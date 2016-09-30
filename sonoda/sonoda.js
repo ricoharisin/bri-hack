@@ -42,6 +42,16 @@ sonoda.prototype.start = function() {
         self.listcredittest(req.body, res);
     });
 
+    app.get('/v0/dialognewdebt', function (req, res) {
+        console.log("test %j",req.body);
+        self.listcredittest(req.body, res);
+    });
+
+    app.get('/v0/dialogcreditdebt', function (req, res) {
+        console.log("test %j",req.body);
+        self.listcredittest(req.body, res);
+    });
+
     app.get('/v0/deposit', function (req, res) {
         console.log("test %j",req.body);
         self.deposittest(req.body, res);
@@ -114,6 +124,58 @@ sonoda.prototype.testcall = function(query, res) {
             });
 
             sonodaFacade.register(query);
+        }
+    ], function(err, result) {
+        if (err) return res.status(500).json(err);
+
+        return res.json(result);
+    });
+
+    return;
+}
+
+sonoda.prototype.dialognewdebt = function(query, res) {
+    //call function here to facade
+    var asyncTask = require('async');
+    var sonodaFacade = require("./sonoda-facade.js");
+
+    asyncTask.waterfall([
+        function(callback) {
+            sonodaFacade.on("success", function(response) {
+                return callback(null, response);
+            });
+
+            sonodaFacade.on("error", function(err){
+                return callback(err, null);
+            });
+
+            sonodaFacade.dialognewdebt(query);
+        }
+    ], function(err, result) {
+        if (err) return res.status(500).json(err);
+
+        return res.json(result);
+    });
+
+    return;
+}
+
+sonoda.prototype.dialognewcredit = function(query, res) {
+    //call function here to facade
+    var asyncTask = require('async');
+    var sonodaFacade = require("./sonoda-facade.js");
+
+    asyncTask.waterfall([
+        function(callback) {
+            sonodaFacade.on("success", function(response) {
+                return callback(null, response);
+            });
+
+            sonodaFacade.on("error", function(err){
+                return callback(err, null);
+            });
+
+            sonodaFacade.dialognewcredit(query);
         }
     ], function(err, result) {
         if (err) return res.status(500).json(err);

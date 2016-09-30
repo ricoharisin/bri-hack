@@ -331,16 +331,6 @@ sonoda.prototype.regiterMerchant = function(params, res) {
     asyncTask.waterfall([
         function(callback) {
             sonodaFacade.on("success", function(response) {
-                /*{
-                  "ResponseCode": "00",
-                  "ResponseDescription": "Sukses",
-                  "KodeMerchant": "80077",
-                  "Password": "password",
-                  "PinNasabah": null,
-                  "Saldo": null,
-                  "Token": null,
-                  "Nama": "ARM Teadm"
-                }*/
                 return callback(null, response);
             });
 
@@ -384,35 +374,30 @@ sonoda.prototype.getUserDataPayment = function(params, res) {
 }
 
 sonoda.prototype.loginUser = function(params, res) {
-
-    var asyncTask = require('async');
-    var sonodaFacade = require("./sonoda-facade.js");
     var self = this;
+    var mysql      = require('mysql');
+    var conf = require('./config.json');
+    var connection = mysql.createConnection(conf.mysql);
 
-    asyncTask.waterfall([
-        function(callback) {
-            sonodaFacade.on("success", function(response) {
-                return callback(null, response);
-            });
+    connection.connect();
 
-            sonodaFacade.on("error", function(err) {
-                return callback(err, null);
-            });
+    var q = "select * from ws_user where user_phone = '" + params.user_phone +"' and user_password = '" + params.user_password +"' limit 1;";
 
-            sonodaFacade.login(params);
+    console.log(q);
+
+    connection.query(q ,function(err, rows, fields) {
+        connection.end();
+        if (!err) {
+            if (rows.length > 0) {
+                var user = result[0];
+                self.responseGeneration(res, err, result);
+            } else {
+                self.responseGenerationError(res, err);
+            }
+        } else {
+            self.responseGenerationError(res, err);
         }
-    ], function(err, result) {
-        if (err) 
-        {
-            return res.status(500).json(err);
-        }
-
-        var user = result[0];
-        self.responseGeneration(res, err, result);
-
-        return;
     });
-
     return;
 }
 
@@ -421,30 +406,25 @@ sonoda.prototype.register = function(params, res) {
     var asyncTask = require('async');
     var sonodaFacade = require("./sonoda-facade.js");
     var self = this;
+    var mysql = require('mysql');
+    var conf = require('./config.json');
+    var connection = mysql.createConnection(conf.mysql);
+    var self = this;
 
-    asyncTask.waterfall([
-        function(callback) {
-            sonodaFacade.on("success", function(response) {
-                return callback(null, response);
-            });
+    connection.connect();
 
-            sonodaFacade.on("error", function(err) {
-                return callback(err, null);
-            });
+    var q = "insert into ws_user(user_name, user_email, user_password, user_phone, user_ktp) " + 
+        "values ('" + params.user_name +"', '" + params.user_email +"', '" + params.user_password + "' " +
+        ", '" + params.user_phone + "', '" + params.user_ktp + "' );";
 
-            sonodaFacade.register(params);
+    connection.query(q ,function(err, rows, fields) {
+        connection.end();
+        if (!err) {
+          self.responseGeneration(res, err, { "success" : 1});
+        } else {
+          self.responseGenerationError(res, err);
         }
-    ], function(err, result) {
-        if (err) 
-        {
-            return res.status(500).json(err);
-        }
-
-        self.responseGeneration(res, err, result);
-
-        return;
     });
-
     return;
 }
 
@@ -471,6 +451,7 @@ sonoda.prototype.registrasiTBank = function(params, res) {
             var user = rows[0];
 
             if (user != null) {
+                connection.end();
                 self.responseGeneration(res, err, user);
                 return;
             }
@@ -493,6 +474,7 @@ sonoda.prototype.registrasiTBank = function(params, res) {
                 client.RegistrasiTBank(newParams, function(err, result) {
                     console.log(result);
                     if (err) {
+                        connection.end();
                         return res.status(500).json(err);
                     } else {
                         var response = JSON.parse(result.RegistrasiTBankResult);
@@ -508,172 +490,75 @@ sonoda.prototype.registrasiTBank = function(params, res) {
 
                         connection.query(q ,function(err, rows, fields) {
                             if (!err) {
-                              self.responseGeneration(res, err, user);
+                                connection.end();
+                                self.responseGeneration(res, err, user);
+                                return;
                             } else {
-                              return res.status(500).json(err);
+                                connection.end();
+                                return res.status(500).json(err);
                             }
-                            connection.end();
+                            
                         });
                     }
                 });
             });
 
         } else {
-            console.log('error_choy' + err);
             connection.end();
             return res.status(500).json(err);
         }
     });
-
-    /*var asyncTask = require('async');
-    var sonodaFacade = require("./sonoda-facade.js");
-
-    asyncTask.waterfall([
-        function(callback) {
-            sonodaFacade.on("success", function(response) {
-                
-                return callback(null, response);
-            });
-
-            sonodaFacade.on("error", function(err) {
-                return callback(err, null);
-            });
-
-            sonodaFacade.getUserDataPayment(params);
-        }
-    ], function(err, result) {
-        if (err) {
-            return res.status(500).json(err);
-        }
-
-        var user = result[0];
-
-        var newParams = {
-            kodeMerchant : kodeMerchant,
-            password : user.user_password,
-            nohandphone : user.user_phone,
-            nama : user.user_name,
-            noktp : user.user_ktp,
-            tempatLahir : "Bogor",
-            tanggalLahir : "29091995",
-            alamat : "Wisma 77",
-            kota : "Purwokerto",
-            email : user.user_email,
-            pekerjaan : "Tukang Ketik"
-        }
-
-        asyncTask.waterfall([
-            function(callback) {
-                sonodaFacade.on("successSecond", function(response) {
-                    return callback(null, response);
-                });
-
-                sonodaFacade.on("errorSecond", function(err) {
-                    return callback(err, null);
-                });
-
-                sonodaFacade.registrasiTBank(newParams);
-            }
-        ], function(err, result) {
-            if (err) {
-                return res.status(500).json(err);
-            }
-
-            if (result.ResponseCode != "00") {
-                return self.responseGenerationError(res, result.ResponseDescription);
-            }
-
-            user.user_pin = result.PinNasabah;
-
-            asyncTask.waterfall([
-                function(callback) {
-                    sonodaFacade.on("successThree", function(response) {
-                        return callback(null, response);
-                    });
-
-                    sonodaFacade.on("errorThree", function(err) {
-                        return callback(err, null);
-                    });
-
-                    sonodaFacade.updateUser(user);
-                }
-            ], function(err, result) {
-                if (err) {
-                    return res.status(500).json(err);
-                }
-                self.responseGeneration(res, err, user);
-                return;
-            });
-            return;
-        });        
-        return;
-    });
-
-    return;*/
 }
 
 sonoda.prototype.infoSaldoTBank = function(params, res) {
-
-    var asyncTask = require('async');
-    var sonodaFacade = require("./sonoda-facade.js");
+    var mysql      = require('mysql');
+    var conf = require('./config.json');
+    var connection = mysql.createConnection(conf.mysql);
     var self = this;
 
-    asyncTask.waterfall([
-        function(callback) {
-            sonodaFacade.on("success", function(response) {
-                
-                return callback(null, response);
-            });
+    connection.connect();
 
-            sonodaFacade.on("error", function(err) {
-                return callback(err, null);
-            });
+    var q = "select * from ws_user where user_id = "+ params.user_id +" limit 1;";
 
-            sonodaFacade.getUserDataPayment(params);
-        }
-    ], function(err, result) {
-        if (err) {
-            return res.status(500).json(err);
-        }
+    console.log(q);
 
-        var user = result[0];
+    connection.query(q ,function(err, rows, fields) {
+        if (!err) {
+            connection.end();
+            var user = rows[0];
 
-        var newParams = {
-            nohandphone : user.user_phone,
-            pin : user.user_pin
-        }
+            var newParams = {
+                nohandphone : user.user_phone,
+                pin : user.user_pin
+            }
+            soap.createClient(briUrl, function(err, client) {
+                client.InfoSaldoTBank(params, function(err, result) {
+                    if (err) {
+                        console.log("error infoSaldoTBank");
+                        self.responseGenerationError(res, err);
+                    } else {
+                        var response = JSON.parse(result.InfoSaldoTBankResult);
+                        if (err) {
+                            return res.status(500).json(err);
+                        }
 
-        asyncTask.waterfall([
-            function(callback) {
-                sonodaFacade.on("successSecond", function(response) {
-                    return callback(null, response);
+                        if (response.ResponseCode != "00") {
+                            return self.responseGenerationError(res, response.ResponseDescription);
+                        }
+
+                        var newResponse = {
+                            "saldo" : response.Saldo
+                        }
+
+                        self.responseGeneration(res, err, newResponse);
+                    }
                 });
-
-                sonodaFacade.on("errorSecond", function(err) {
-                    return callback(err, null);
-                });
-
-                sonodaFacade.infoSaldoTBank(newParams);
-            }
-        ], function(err, result) {
-            if (err) {
-                return res.status(500).json(err);
-            }
-
-            if (result.ResponseCode != "00") {
-                return self.responseGenerationError(res, result.ResponseDescription);
-            }
-
-            var newResponse = {
-                "saldo" : result.Saldo
-            }
-
-            self.responseGeneration(res, err, newResponse);
-            return;
-        });        
-        return;
+            });
+        } else {
+            connection.end();
+            self.responseGenerationError(res, err);
+        }
     });
-
     return;
 }
 
@@ -806,93 +691,73 @@ sonoda.prototype.topUpTBank = function(params, res) {
 }
 
 sonoda.prototype.transferTBank = function(params, res) {
-    var asyncTask = require('async');
-    var sonodaFacade = require("./sonoda-facade.js");
+    var mysql      = require('mysql');
+    var conf = require('./config.json');
+    var connection = mysql.createConnection(conf.mysql);
     var self = this;
+
+    connection.connect();
 
     var debtParam = {
         'debt_id' : params.debt_id
     };
 
-    asyncTask.waterfall([
-        function(callback) {
-            sonodaFacade.on("success", function(response) {
-                
-                return callback(null, response);
-            });
+    var q = "select d.*, d.debt_amt as nominal, a.user_phone as pengirim, b.user_phone as penerima, a.user_pin as pin from ws_debt d " +
+        "join ws_user a on d.debt_user_id = a.user_id " + 
+        "join ws_user b on d.credit_user_id = b.user_id where debt_id = "+ debtParam.debt_id +" and debt_status = '-1' limit 1;";
 
-            sonodaFacade.on("error", function(err) {
-                return callback(err, null);
-            });
+    console.log(q);
 
-            sonodaFacade.getDebtDataPayment(debtParam);
-        }
-    ], function(err, result) {
-        if (err) {
-            return res.status(500).json(err);
-        }
-        var debt = result[0];
-        var transferParams = {
-            nohandphonePengirim : debt.pengirim,
-            nohandphonePenerima : debt.penerima,
-            pin : debt.pin,
-            nominal : debt.nominal
-        };
+    connection.query(q ,function(err, rows, fields) {
+        if (!err) {
+            if (rows.length > 0) {
+                var debt = rows[0];
+                var transferParams = {
+                    nohandphonePengirim : debt.pengirim,
+                    nohandphonePenerima : debt.penerima,
+                    pin : debt.pin,
+                    nominal : debt.nominal
+                };
+                soap.createClient(briUrl, function(err, client) {
+                    client.TransferTBank(transferParams, function(err, result) {
+                        if (err) {
+                            connection.end();
+                            return res.status(500).json(err);
+                        } else {
 
-        asyncTask.waterfall([
-            function(callback) {
-                sonodaFacade.on("successSecond", function(response) {
-                    return callback(null, response);
-                });
+                            var response = JSON.parse(result.TransferTBankResult);
+                            if (response.ResponseCode != "00") {
+                                connection.end();
+                                return self.responseGenerationError(res, response.ResponseDescription);
+                            }
+                            var updateParam = {
+                                debt_id : debt.debt_id,
+                                debt_status : '1'
+                            }
+                            var q = "update ws_debt set debt_status = '" + updateParam.debt_status +"' where debt_id = "+ updateParam.debt_id +";";
 
-                sonodaFacade.on("errorSecond", function(err) {
-                    return callback(err, null);
-                });
-
-                sonodaFacade.transferTBank(transferParams);
-            }
-        ], function(err, result) {
-            if (err) {
-                return res.status(500).json(err);
-            }
-            if (result.ResponseCode != "00") {
-                return self.responseGenerationError(res, result.ResponseDescription);
-            }
-
-            console.log("transfer response \n");
-            console.log(result);
-
-            var updateParam = {
-                debt_id : debt.debt_id,
-                debt_status : '1'
-            }
-
-            asyncTask.waterfall([
-                function(callback) {
-                    sonodaFacade.on("successThree", function(response) {
-                        return callback(null, response);
+                            connection.query(q ,function(err, rows, fields) {
+                                if (!err) {
+                                    connection.end();
+                                    self.responseGeneration(res, err, rows);
+                                } else {
+                                    connection.end();
+                                    self.responseGenerationError(res, err);
+                                }
+                                return;
+                            });
+                        }
                     });
-
-                    sonodaFacade.on("errorThree", function(err) {
-                        return callback(err, null);
-                    });
-
-                    sonodaFacade.updataStatusDebt(updateParam);
-                }
-            ], function(err, result) {
-                if (err) {
-                    return res.status(500).json(err);
-                }
-                self.responseGeneration(res, err, result);
-                return;
-            });
-
-            return;
-        });
-
-        return;
+                });
+            } else {
+                connection.end();
+                return self.responseGenerationError(res, err);
+            }
+        } else {
+            connection.end();
+            return self.responseGenerationError(res, err);
+        }
     });
-
 }
 
 

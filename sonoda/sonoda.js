@@ -343,6 +343,11 @@ sonoda.prototype.registrasiTBank = function(params, res) {
 
             var user = rows[0];
 
+            if (user != null) {
+                self.responseGeneration(res, err, user);
+                return;
+            }
+
             var newParams = {
                 kodeMerchant : kodeMerchant,
                 password : user.user_password,

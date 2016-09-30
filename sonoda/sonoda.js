@@ -214,9 +214,6 @@ sonoda.prototype.getUserDataPayment = function(params, res) {
 
     var asyncTask = require('async');
     var sonodaFacade = require("./sonoda-facade.js");
-    params = {
-        user_id : "2"
-    };
 
     asyncTask.waterfall([
         function(callback) {
@@ -231,10 +228,8 @@ sonoda.prototype.getUserDataPayment = function(params, res) {
             sonodaFacade.getUserDataPayment(params);
         }
     ], function(err, result) {
-        console.log("ini resultnya :");
-        var obj = result[0];
-        console.log(obj.user_name);
-        return res.json(result);
+        var user = result[0];
+        return user;
     });
 
     return;
@@ -340,10 +335,12 @@ sonoda.prototype.requestTokenTBank = function(params, res) {
 
     var asyncTask = require('async');
     var sonodaFacade = require("./sonoda-facade.js");
+    var self = this;
 
     asyncTask.waterfall([
         function(callback) {
             sonodaFacade.on("success", function(response) {
+                
                 return callback(null, response);
             });
 
@@ -354,12 +351,12 @@ sonoda.prototype.requestTokenTBank = function(params, res) {
             sonodaFacade.getUserDataPayment(params);
         }
     ], function(err, result) {
+        console.log("masuk 1", result);
         if (err) {
             // console.log(err);
             return;
         }
         var user = result[0];
-        console.log(user.user_phone);
 
         var newParams = {
             nohandphone : user.user_phone,
@@ -368,7 +365,7 @@ sonoda.prototype.requestTokenTBank = function(params, res) {
 
         asyncTask.waterfall([
             function(callback) {
-                sonodaFacade.on("success", function(response) {
+                sonodaFacade.on("successSecond", function(response) {
                     return callback(null, response);
                     /*{
                       "ResponseCode": "00",
@@ -382,13 +379,16 @@ sonoda.prototype.requestTokenTBank = function(params, res) {
                     }*/
                 });
 
-                sonodaFacade.on("error", function(err) {
+                sonodaFacade.on("errorSecond", function(err) {
                     return callback(err, null);
                 });
 
                 sonodaFacade.requestTokenTBank(newParams);
             }
         ], function(err, result) {
+            if (err) {
+                return res.status(500).json(err);
+            }
             var newResponse = {
                 "token" : result.Token
             }

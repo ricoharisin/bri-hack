@@ -124,6 +124,19 @@ sonodaFacade.prototype.error = function(err) {
   return;
 }
 
+
+sonodaFacade.prototype.successSecond = function(res) {
+  console.log('successSecond!  '+res);
+  this.emit('successSecond', res);
+  return;
+}
+
+sonodaFacade.prototype.errorSecond = function(err) {
+  console.log('successSecond '+err);
+  this.emit('successSecond', err);
+  return;
+}
+
 sonodaFacade.prototype.regiterMerchant = function(params) {
     var sonodaCore = require('./sonoda-core.js');
     var self = this;
@@ -214,13 +227,15 @@ sonodaFacade.prototype.requestTokenTBank = function(params) {
     var self = this;
 
     sonodaCore.requestTokenTBank(params);
+    console.log("request Token");
+    console.log(params);
 
     sonodaCore.on("success", function(response) {
-        self.success(response);
+        self.successSecond(response);
     });
 
     sonodaCore.on("error", function(err) {
-        self.error(err);
+        self.successSecond(err);
     });
 }
 

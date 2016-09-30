@@ -34,7 +34,6 @@ sonoda.prototype.start = function() {
         self.testcall(req.body, res);
     });
 
-<<<<<<< HEAD
     app.get('/v0/listdebt', function (req, res) {
         console.log("test %j",req.body);
         self.listdebttest(req.body, res);
@@ -440,14 +439,14 @@ sonoda.prototype.registrasiTBank = function(params, res) {
     var connection = mysql.createConnection(conf.mysql);
     var self = this;
 
-    connection.connect();
-
     var q = "select * from ws_user where user_id = "+ params.user_id +" limit 1;";
 
     console.log(q);
 
+    connection.connect();
+    
     connection.query(q ,function(err, rows, fields) {
-        console.log("selesai query");
+        console.log(rows);
         if (!err) {
             if (rows.length == 0) {
                 connection.end();
@@ -455,12 +454,6 @@ sonoda.prototype.registrasiTBank = function(params, res) {
             }
 
             var user = rows[0];
-
-            if (user != null) {
-                connection.end();
-                self.responseGeneration(res, err, user);
-                return;
-            }
 
             var newParams = {
                 kodeMerchant : kodeMerchant,
@@ -475,26 +468,29 @@ sonoda.prototype.registrasiTBank = function(params, res) {
                 email : user.user_email,
                 pekerjaan : "Tukang Ketik"
             }
+            console.log(newParams);
 
             soap.createClient(briUrl, function(err, client) {
                 client.RegistrasiTBank(newParams, function(err, result) {
-                    console.log(result);
                     if (err) {
                         connection.end();
                         return res.status(500).json(err);
                     } else {
+                        console.log(result);
                         var response = JSON.parse(result.RegistrasiTBankResult);
                         if (response.ResponseCode != "00") {
                             return res.status(500).json(err);
                         }
                         user.user_pin = response.PinNasabah;
 
-                        var q = "update ws_user(user_name, user_email, user_password, user_phone, user_ktp, user_pin) " + 
-                            "values ('" + user.user_name +"', '" + user.user_email +"', '" + user.user_password + "' " +
-                            ", '" + user.user_phone + "', '" + user.user_ktp + "', '" + user.user_pin + "' " +
-                            "where user_id = '" + user.user_id + "');";
+                        var q = "update ws_user " + 
+                            "set user_name = '" + user.user_name +"', user_email = '" + user.user_email +"', user_password='" + user.user_password + "' " +
+                            ", user_phone='" + user.user_phone + "', user_ktp='" + user.user_ktp + "', user_pin='" + user.user_pin + "' " +
+                            "where user_id = '" + user.user_id + "';";
+                        console.log(q);
 
                         connection.query(q ,function(err, rows, fields) {
+                            console.log(rows);
                             if (!err) {
                                 connection.end();
                                 self.responseGeneration(res, err, user);
@@ -879,30 +875,6 @@ sonoda.prototype.regiterMerchant = function(params, res) {
     return;
 }
 
-sonoda.prototype.registrasiTBank = function(params, res) {
-
-    var asyncTask = require('async');
-    var sonodaFacade = require("./sonoda-facade.js");
-
-    asyncTask.waterfall([
-        function(callback) {
-            sonodaFacade.on("success", function(response) {
-                return callback(null, response);
-            });
-
-            sonodaFacade.on("error", function(err) {
-                return callback(err, null);
-            });
-
-            sonodaFacade.registrasiTBank(params);
-        }
-    ], function(err, result) {
-        self.responseGeneration(res, err, result);
-        return;
-    });
-
-    return;
-}
 
 sonoda.prototype.infoSaldoTBank = function(params, res) {
 
@@ -1055,7 +1027,7 @@ sonoda.prototype.belanjaTBank = function(params, res) {
     return;
 }
 
-sonodaFacade.prototype.gantiPINTBank = function(params) {
+sonoda.prototype.gantiPINTBank = function(params) {
     var sonodaCore = require('./sonoda-core.js');
     var self = this;
 

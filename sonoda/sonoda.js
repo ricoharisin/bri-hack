@@ -6,10 +6,6 @@ var kodeMerchant = 80077;
 var passwordMerchant = "password";
 var telpNumber = '085747212167';
 
-var FCM = require('fcm-node');
-var serverKey = 'AIzaSyB0hqTc3eKUl3i9dbDSu-h7iMfqBUJSWtM';
-var fcm = new FCM(serverKey);
-
 
 sonoda.prototype = Object.create(require('events').EventEmitter.prototype);
 
@@ -26,6 +22,8 @@ sonoda.prototype.start = function() {
     }));
 
     app.use(bodyParser.json());
+
+    app.use(express.static('public'));
 
     app.get('/conf', function (req, res) {
         console.log("test %j",req.body);

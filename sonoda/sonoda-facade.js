@@ -124,4 +124,139 @@ sonodaFacade.prototype.error = function(err) {
   return;
 }
 
+sonodaFacade.prototype.regiterMerchant = function(params) {
+    var sonodaCore = require('./sonoda-core.js');
+    var self = this;
+
+    sonodaCore.regiterMerchant(params);
+
+    sonodaCore.on("success", function(response) {
+        self.success(response);
+    });
+
+    sonodaCore.on("error", function(err) {
+        self.error(err);
+    });
+}
+
+sonodaFacade.prototype.registrasiTBank = function(params) {
+    var sonodaCore = require('./sonoda-core.js');
+    var self = this;
+
+    sonodaCore.registrasiTBank(params);
+
+    sonodaCore.on("success", function(response) {
+        self.success(response);
+    });
+
+    sonodaCore.on("error", function(err) {
+        self.error(err);
+    });
+}
+
+sonodaFacade.prototype.infoSaldoTBank = function(params) {
+    var sonodaCore = require('./sonoda-core.js');
+    var self = this;
+
+    sonodaCore.infoSaldoTBank(params);
+
+    sonodaCore.on("success", function(response) {
+        self.success(response);
+    });
+
+    sonodaCore.on("error", function(err) {
+        self.error(err);
+    });
+}
+
+sonodaFacade.prototype.inquiryBelanjaTBank = function(params) {
+    var sonodaCore = require('./sonoda-core.js');
+    var self = this;
+
+    sonodaCore.inquiryBelanjaTBank(params);
+
+    sonodaCore.on("success", function(response) {
+        self.success(response);
+    });
+
+    sonodaCore.on("error", function(err) {
+        self.error(err);
+    });
+}
+
+sonodaFacade.prototype.requestTokenTBank = function(params) {
+    var sonodaCore = require('./sonoda-core.js');
+    var self = this;
+
+    sonodaCore.requestTokenTBank(params);
+
+    sonodaCore.on("success", function(response) {
+        self.success(response);
+    });
+
+    sonodaCore.on("error", function(err) {
+        self.error(err);
+    });
+}
+
+sonodaFacade.prototype.topUpTBank = function(params) {
+    var sonodaCore = require('./sonoda-core.js');
+    var self = this;
+
+    sonodaCore.topUpTBank(params);
+
+    sonodaCore.on("success", function(response) {
+        self.success(response);
+    });
+
+    sonodaCore.on("error", function(err) {
+        self.error(err);
+    });
+}
+
+sonodaFacade.prototype.transferTBank = function(params) {
+    var sonodaCore = require('./sonoda-core.js');
+    var self = this;
+
+    sonodaCore.transferTBank(params);
+
+    sonodaCore.on("success", function(response) {
+        self.success(response);
+    });
+
+    sonodaCore.on("error", function(err) {
+        self.error(err);
+    });
+}
+
+sonodaFacade.prototype.belanjaTBank = function(params) {
+    var sonodaCore = require('./sonoda-core.js');
+    var self = this;
+
+    sonodaCore.belanjaTBank(params);
+
+    sonodaCore.on("success", function(response) {
+        self.success(response);
+    });
+
+    sonodaCore.on("error", function(err) {
+        self.error(err);
+    });
+}
+
+sonodaFacade.prototype.gantiPINTBank = function(params) {
+    var sonodaCore = require('./sonoda-core.js');
+    var self = this;
+
+    sonodaCore.gantiPINTBank(params);
+
+    sonodaCore.on("success", function(response) {
+        self.success(response);
+    });
+
+    sonodaCore.on("error", function(err) {
+        self.error(err);
+    });
+}
+
 module.exports = new sonodaFacade();

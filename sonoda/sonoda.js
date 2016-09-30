@@ -6,6 +6,10 @@ var kodeMerchant = 80077;
 var passwordMerchant = "password";
 var telpNumber = '085747212167';
 
+var FCM = require('fcm-node');
+var serverKey = 'AIzaSyB0hqTc3eKUl3i9dbDSu-h7iMfqBUJSWtM';
+var fcm = new FCM(serverKey);
+
 
 sonoda.prototype = Object.create(require('events').EventEmitter.prototype);
 
@@ -534,7 +538,7 @@ sonoda.prototype.infoSaldoTBank = function(params, res) {
                 pin : user.user_pin
             }
             soap.createClient(briUrl, function(err, client) {
-                client.InfoSaldoTBank(params, function(err, result) {
+                client.InfoSaldoTBank(newParams, function(err, result) {
                     if (err) {
                         console.log("error infoSaldoTBank");
                         self.responseGenerationError(res, err);
@@ -875,31 +879,6 @@ sonoda.prototype.regiterMerchant = function(params, res) {
     return;
 }
 
-
-sonoda.prototype.infoSaldoTBank = function(params, res) {
-
-    var asyncTask = require('async');
-    var sonodaFacade = require("./sonoda-facade.js");
-
-    asyncTask.waterfall([
-        function(callback) {
-            sonodaFacade.on("success", function(response) {
-                return callback(null, response);
-            });
-
-            sonodaFacade.on("error", function(err) {
-                return callback(err, null);
-            });
-
-            sonodaFacade.infoSaldoTBank(params);
-        }
-    ], function(err, result) {
-        self.responseGeneration(res, err, result);
-        return;
-    });
-
-    return;
-}
 
 sonoda.prototype.inquiryBelanjaTBank = function(params, res) {
 

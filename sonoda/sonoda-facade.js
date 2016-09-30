@@ -132,8 +132,20 @@ sonodaFacade.prototype.successSecond = function(res) {
 }
 
 sonodaFacade.prototype.errorSecond = function(err) {
-  console.log('successSecond '+err);
-  this.emit('successSecond', err);
+  console.log('errorSecond '+err);
+  this.emit('errorSecond', err);
+  return;
+}
+
+sonodaFacade.prototype.successThree = function(res) {
+  console.log('successThree!  '+res);
+  this.emit('successThree', res);
+  return;
+}
+
+sonodaFacade.prototype.errorThree = function(err) {
+  console.log('errorThree '+err);
+  this.emit('errorThree', err);
   return;
 }
 
@@ -172,6 +184,84 @@ sonodaFacade.prototype.getUserDataPayment = function(params) {
             console.log('error_choy' + err);
             connection.end();
             self.error(err);
+        }
+    });
+}
+
+sonodaFacade.prototype.getDebtDataPayment = function(params) {
+    var mysql      = require('mysql');
+    var conf = require('./config.json');
+    var connection = mysql.createConnection(conf.mysql);
+    var self = this;
+
+    connection.connect();
+
+    var q = "select d.*, d.debt_amt as nominal, a.user_phone as pengirim, b.user_phone as penerima, a.user_pin as pin from ws_debt d " +
+        "join ws_user a on d.debt_user_id = a.user_id " + 
+        "join ws_user b on d.credit_user_id = b.user_id where debt_id = "+ params.debt_id +" and debt_status = '-1' limit 1;";
+
+    console.log(q);
+
+    connection.query(q ,function(err, rows, fields) {
+        if (!err) {
+            if (rows.length > 0) {
+                self.success(rows);
+            } else {
+                self.error(rows);
+            }
+            connection.end();
+            
+        } else {
+            console.log('error_choy' + err);
+            connection.end();
+            self.error(err);
+        }
+    });
+}
+
+sonodaFacade.prototype.updataStatusDebt = function(params) {
+    var mysql      = require('mysql');
+    var conf = require('./config.json');
+    var connection = mysql.createConnection(conf.mysql);
+    var self = this;
+
+    connection.connect();
+
+    var q = "update ws_debt set debt_status = '" + params.debt_status +"' where debt_id = "+ params.debt_id +";";
+
+    console.log(q);
+
+    connection.query(q ,function(err, rows, fields) {
+        if (!err) {
+            connection.end();
+            self.successThree(rows);
+        } else {
+            connection.end();
+            self.errorThree(err);
+        }
+    });
+}
+
+sonodaFacade.prototype.getUserDataPaymentSecond = function(params) {
+    var mysql      = require('mysql');
+    var conf = require('./config.json');
+    var connection = mysql.createConnection(conf.mysql);
+    var self = this;
+
+    connection.connect();
+
+    var q = "select * from ws_user where user_id = "+params.user_id+" limit 1;";
+
+    console.log(q);
+
+    connection.query(q ,function(err, rows, fields) {
+        if (!err) {
+            connection.end();
+            self.successSecond(rows);
+        } else {
+            console.log('error_choy' + err);
+            connection.end();
+            self.errorSecond(err);
         }
     });
 }
@@ -261,11 +351,11 @@ sonodaFacade.prototype.transferTBank = function(params) {
     sonodaCore.transferTBank(params);
 
     sonodaCore.on("success", function(response) {
-        self.success(response);
+        self.successSecond(response);
     });
 
     sonodaCore.on("error", function(err) {
-        self.error(err);
+        self.errorSecond(err);
     });
 }
 

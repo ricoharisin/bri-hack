@@ -26,7 +26,7 @@ sonoda.prototype.start = function() {
 
     app.get('/v0/listdebt', function (req, res) {
         console.log("test %j",req.body);
-        self.listdbt(req.body, res);
+        self.listdebt(req.body, res);
     });
 
     

@@ -64,6 +64,17 @@ sonoda.prototype.start = function() {
         self.createnewcredit(req.body, res);
     })
 
+    app.post('/v0/acceptdebt', function (req, res) {
+        console.log("test %j",req.body);
+        self.acceptdebt(req.body, res);
+    })
+
+    app.post('/v0/invite', function (req, res) {
+        console.log("test %j",req.body);
+        self.invitephone(req.body, res);
+    })
+
+
     app.get('/v0/deposit', function (req, res) {
         console.log("test %j",req.body);
         self.deposittest(req.body, res);
@@ -163,6 +174,68 @@ sonoda.prototype.testcall = function(query, res) {
     });
 
     return;
+}
+
+sonoda.prototype.invitephone = function(query, res) {
+    var mysql      = require('mysql');
+    var conf = require('./config.json');
+    var connection = mysql.createConnection(conf.mysql);
+    var self = this;
+    var params = query;
+
+    var https = require('https');
+
+    var data = JSON.stringify({
+     api_key: '0ebda697',
+     api_secret: '5bd410c755fc3f7a',
+     to: params.user_phone,
+     from: '080989999',
+     text: 'silahkan download link berikut www.google.com'
+    });
+
+    var options = {
+     host: 'rest.nexmo.com',
+     path: '/sms/json',
+     port: 443,
+     method: 'POST',
+     headers: {
+       'Content-Type': 'application/json',
+       'Content-Length': Buffer.byteLength(data)
+     }
+    };
+
+    var req = https.request(options);
+
+    req.write(data);
+    req.end();
+
+    self.responseGeneration(res, null, {"success" : 1});
+}
+
+sonoda.prototype.acceptdebt = function(query, res) {
+    var mysql      = require('mysql');
+    var conf = require('./config.json');
+    var connection = mysql.createConnection(conf.mysql);
+    var self = this;
+    var params = query;
+
+    connection.connect();
+
+    var q = "update ws_debt set debt_status = 1 where debt_id="+params.debt_id+";";
+
+    console.log(q);
+
+    connection.query(q ,function(err, rows, fields) {
+        console.log(rows);
+
+        if (!err) {
+          self.responseGeneration(res, null, {"success" : 1});
+        } else {
+          self.responseGenerationError(res, err);
+        }
+
+        connection.destroy();
+     });
 }
 
 sonoda.prototype.getlistdebt = function(query, res) {

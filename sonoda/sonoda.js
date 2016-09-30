@@ -34,14 +34,14 @@ sonoda.prototype.start = function() {
         self.testcall(req.body, res);
     });
 
-    app.get('/v0/listdebt', function (req, res) {
+    app.post('/v0/listdebt', function (req, res) {
         console.log("test %j",req.body);
-        self.listdebttest(req.body, res);
+        self.getlistdebt(req.body, res);
     });
 
-    app.get('/v0/listcredit', function (req, res) {
+    app.post('/v0/listcredit', function (req, res) {
         console.log("test %j",req.body);
-        self.listcredittest(req.body, res);
+        self.getlistcredit(req.body, res);
     });
 
     app.post('/v0/dialognewdebt', function (req, res) {
@@ -163,6 +163,70 @@ sonoda.prototype.testcall = function(query, res) {
     });
 
     return;
+}
+
+sonoda.prototype.getlistdebt = function(query, res) {
+    var mysql      = require('mysql');
+    var conf = require('./config.json');
+    var connection = mysql.createConnection(conf.mysql);
+    var self = this;
+    var params = query;
+
+    connection.connect();
+
+    var q = "select ws_debt.debt_id AS 'debt_id', ws_debt.debt_amt AS 'debt_amt',"+ 
+            "ws_debt.debt_desc AS 'debt_desc', ws_debt.debt_status AS 'status', " +
+            "ws_user.user_id, ws_user.user_name, ws_user.user_img" +
+            " From ws_debt" +
+            " INNER JOIN ws_user" +
+            " ON ws_debt.debt_user_id = "+params.user_id+" AND ws_user.user_id = ws_debt.credit_user_id;";
+
+    console.log(q);
+
+    connection.query(q ,function(err, rows, fields) {
+        console.log(rows);
+
+        if (!err) {
+          self.responseGeneration(res, null, rows);
+        } else {
+            console.log(err);
+          self.responseGenerationError(res, err);
+        }
+
+        connection.destroy();
+     });
+}
+
+sonoda.prototype.getlistcredit = function(query, res) {
+    var mysql      = require('mysql');
+    var conf = require('./config.json');
+    var connection = mysql.createConnection(conf.mysql);
+    var self = this;
+    var params = query;
+
+    connection.connect();
+
+    var q = "select ws_debt.debt_id AS 'credit_id', ws_debt.debt_amt AS 'credit_amt',"+ 
+            "ws_debt.debt_desc AS 'credit_desc', ws_debt.debt_status AS 'status', " +
+            "ws_user.user_id, ws_user.user_name, ws_user.user_img" +
+            " From ws_debt" +
+            " INNER JOIN ws_user" +
+            " ON ws_debt.credit_user_id = "+params.user_id+" AND ws_user.user_id = ws_debt.debt_user_id;";
+
+    console.log(q);
+
+    connection.query(q ,function(err, rows, fields) {
+        console.log(rows);
+
+        if (!err) {
+          self.responseGeneration(res, null, rows);
+        } else {
+            console.log(err);
+          self.responseGenerationError(res, err);
+        }
+
+        connection.destroy();
+     });
 }
 
 sonoda.prototype.dialognewdebt = function(query, res) {

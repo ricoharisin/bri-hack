@@ -42,12 +42,12 @@ sonoda.prototype.start = function() {
         self.listcredittest(req.body, res);
     });
 
-    app.get('/v0/dialognewdebt', function (req, res) {
+    app.post('/v0/dialognewdebt', function (req, res) {
         console.log("test %j",req.body);
         self.dialognewdebt(req.body, res);
     });
 
-    app.get('/v0/dialogcreditdebt', function (req, res) {
+    app.post('/v0/dialognewcredit', function (req, res) {
         console.log("test %j",req.body);
         self.dialognewcredit(req.body, res);
     });

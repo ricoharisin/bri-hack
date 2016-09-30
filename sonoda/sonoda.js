@@ -62,48 +62,53 @@ sonoda.prototype.start = function() {
         self.deposittest(req.body, res);
     });
 
-    app.get('/bri/testquery', function(req, res) {
+    app.get('/v0/bri/testquery', function(req, res) {
         console.log("req %j", req.body);
         self.getUserDataPayment(req.body, res);
     });
 
-    app.post('/bri/merchant/register', function(req, res) {
+    app.post('/v0/bri/merchant/register', function(req, res) {
         console.log("req %j", req.body);
         self.regiterMerchant(req.body, res);
     });
 
-    app.post('/bri/tbank/register', function(req, res) {
+    app.post('/v0/bri/tbank/register', function(req, res) {
         console.log("req %j", req.body);
         self.registrasiTBank(req.body, res);
     });
 
-    app.post('/bri/tbank/saldo', function(req, res) {
+    app.post('/v0/bri/tbank/saldo', function(req, res) {
         self.infoSaldoTBank(req.body, res);
     });
 
-    app.post('/bri/tbank/token', function(req, res) {
+    app.post('/v0/bri/tbank/token', function(req, res) {
         console.log("request parames : %j", req.body);
         self.requestTokenTBank(req.body, res);
     });
 
-    app.post('/bri/tbank/topup', function(req, res) {
+    app.post('/v0/bri/tbank/topup', function(req, res) {
         console.log("req %j", req.body);
         self.topUpTBank(req.body, res);
     });
 
-    app.post('/bri/tbank/trans', function(req, res) {
+    app.post('/v0/bri/tbank/transfer', function(req, res) {
         console.log("req %j", req.body);
         self.transferTBank(req.body, res);
     });
 
-    app.post('/bri/tbank/belanja', function(req, res) {
+    app.post('/v0/bri/tbank/belanja', function(req, res) {
         console.log("req %j", req.body);
         self.belanjaTBank(req.body, res);
     });
 
-    app.post('/bri/tbank/ganti', function(req, res) {
+    app.post('/v0/bri/tbank/ganti', function(req, res) {
         console.log("req %j", req.body);
         self.gantiPINTBank(req.body, res);
+    });
+
+    app.post('/v0/login', function (req, res) {
+        console.log("test %j",req.body);
+        self.loginUser(req.body, res);
     });
     
     
@@ -266,12 +271,21 @@ sonoda.prototype.responseGeneration = function(res, err, result){
         return res.status(500).json(response);
     } else {
         var response = {
-                    success : '0',
+                    success : '1',
                     data : result,
                     message : "success"
                 };
         return res.json(response);
     }
+}
+
+sonoda.prototype.responseGenerationError = function(res, message){
+    
+    var response = {
+        success : '0',
+        message : message
+    };
+    return res.status(500).json(response);
 }
 
 sonoda.prototype.regiterMerchant = function(params, res) {
@@ -313,9 +327,6 @@ sonoda.prototype.getUserDataPayment = function(params, res) {
 
     var asyncTask = require('async');
     var sonodaFacade = require("./sonoda-facade.js");
-    params = {
-        user_id : "2"
-    };
 
     asyncTask.waterfall([
         function(callback) {
@@ -330,10 +341,41 @@ sonoda.prototype.getUserDataPayment = function(params, res) {
             sonodaFacade.getUserDataPayment(params);
         }
     ], function(err, result) {
-        console.log("ini resultnya :");
-        var obj = result[0];
-        console.log(obj.user_name);
-        return res.json(result);
+        var user = result[0];
+        return user;
+    });
+
+    return;
+}
+
+sonoda.prototype.loginUser = function(params, res) {
+
+    var asyncTask = require('async');
+    var sonodaFacade = require("./sonoda-facade.js");
+    var self = this;
+
+    asyncTask.waterfall([
+        function(callback) {
+            sonodaFacade.on("success", function(response) {
+                return callback(null, response);
+            });
+
+            sonodaFacade.on("error", function(err) {
+                return callback(err, null);
+            });
+
+            sonodaFacade.login(params);
+        }
+    ], function(err, result) {
+        if (err) 
+        {
+            return res.status(500).json(err);
+        }
+
+        var user = result[0];
+        self.responseGeneration(res, err, result);
+
+        return;
     });
 
     return;
@@ -439,10 +481,12 @@ sonoda.prototype.requestTokenTBank = function(params, res) {
 
     var asyncTask = require('async');
     var sonodaFacade = require("./sonoda-facade.js");
+    var self = this;
 
     asyncTask.waterfall([
         function(callback) {
             sonodaFacade.on("success", function(response) {
+                
                 return callback(null, response);
             });
 
@@ -453,12 +497,12 @@ sonoda.prototype.requestTokenTBank = function(params, res) {
             sonodaFacade.getUserDataPayment(params);
         }
     ], function(err, result) {
+        console.log("masuk 1", result);
         if (err) {
             // console.log(err);
             return;
         }
         var user = result[0];
-        console.log(user.user_phone);
 
         var newParams = {
             nohandphone : user.user_phone,
@@ -467,27 +511,25 @@ sonoda.prototype.requestTokenTBank = function(params, res) {
 
         asyncTask.waterfall([
             function(callback) {
-                sonodaFacade.on("success", function(response) {
+                sonodaFacade.on("successSecond", function(response) {
                     return callback(null, response);
-                    /*{
-                      "ResponseCode": "00",
-                      "ResponseDescription": "Sukses",
-                      "KodeMerchant": null,
-                      "Password": null,
-                      "PinNasabah": null,
-                      "Saldo": null,
-                      "Token": "786788",
-                      "Nama": null
-                    }*/
                 });
 
-                sonodaFacade.on("error", function(err) {
+                sonodaFacade.on("errorSecond", function(err) {
                     return callback(err, null);
                 });
 
                 sonodaFacade.requestTokenTBank(newParams);
             }
         ], function(err, result) {
+            if (err) {
+                return res.status(500).json(err);
+            }
+
+            if (result.ResponseCode != "00") {
+                return self.responseGenerationError(res, result.ResponseDescription);
+            }
+
             var newResponse = {
                 "token" : result.Token
             }
@@ -540,39 +582,93 @@ sonoda.prototype.topUpTBank = function(params, res) {
 }
 
 sonoda.prototype.transferTBank = function(params, res) {
-
     var asyncTask = require('async');
     var sonodaFacade = require("./sonoda-facade.js");
+    var self = this;
+
+    var debtParam = {
+        'debt_id' : params.debt_id
+    };
 
     asyncTask.waterfall([
         function(callback) {
             sonodaFacade.on("success", function(response) {
+                
                 return callback(null, response);
-
-                /*{
-                  "ResponseCode": "00",
-                  "ResponseDescription": "Sukses",
-                  "KodeMerchant": null,
-                  "Password": null,
-                  "PinNasabah": null,
-                  "Saldo": "20000.00",
-                  "Token": null,
-                  "Nama": null
-                }*/
             });
 
             sonodaFacade.on("error", function(err) {
                 return callback(err, null);
             });
 
-            sonodaFacade.transferTBank(params);
+            sonodaFacade.getDebtDataPayment(debtParam);
         }
     ], function(err, result) {
-        self.responseGeneration(res, err, result);
+        if (err) {
+            return res.status(500).json(err);
+        }
+        var debt = result[0];
+        var transferParams = {
+            nohandphonePengirim : debt.pengirim,
+            nohandphonePenerima : debt.penerima,
+            pin : debt.pin,
+            nominal : debt.nominal
+        };
+
+        asyncTask.waterfall([
+            function(callback) {
+                sonodaFacade.on("successSecond", function(response) {
+                    return callback(null, response);
+                });
+
+                sonodaFacade.on("errorSecond", function(err) {
+                    return callback(err, null);
+                });
+
+                sonodaFacade.transferTBank(transferParams);
+            }
+        ], function(err, result) {
+            if (err) {
+                return res.status(500).json(err);
+            }
+            if (result.ResponseCode != "00") {
+                return self.responseGenerationError(res, result.ResponseDescription);
+            }
+
+            console.log("transfer response \n");
+            console.log(result);
+
+            var updateParam = {
+                debt_id : debt.debt_id,
+                debt_status : '1'
+            }
+
+            asyncTask.waterfall([
+                function(callback) {
+                    sonodaFacade.on("successThree", function(response) {
+                        return callback(null, response);
+                    });
+
+                    sonodaFacade.on("errorThree", function(err) {
+                        return callback(err, null);
+                    });
+
+                    sonodaFacade.updataStatusDebt(updateParam);
+                }
+            ], function(err, result) {
+                if (err) {
+                    return res.status(500).json(err);
+                }
+                self.responseGeneration(res, err, result);
+                return;
+            });
+
+            return;
+        });
+
         return;
     });
 
-    return;
 }
 
 

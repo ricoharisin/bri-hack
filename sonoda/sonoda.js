@@ -24,6 +24,11 @@ sonoda.prototype.start = function() {
         self.testcall(req.body, res);
     });
 
+    app.get('/v0/listdebt', function (req, res) {
+        console.log("test %j",req.body);
+        self.listdbt(req.body, res);
+    });
+
     
     app.listen(appEnv.port, '0.0.0.0', function() {
 
@@ -55,8 +60,33 @@ sonoda.prototype.testcall = function(query, res) {
     });
 
     return;
+}
 
+sonoda.prototype.listdebt = function(query, res) {
+    //call function here to facade
+    var asyncTask = require('async');
+    var sonodaFacade = require("./sonoda-facade.js");
+    var listdebtjson = require("./listdebt.json");
 
+    asyncTask.waterfall([
+        function(callback) {
+            sonodaFacade.on("success", function(response) {
+                return callback(null, response);
+            });
+
+            sonodaFacade.on("error", function(err){
+                return callback(err, null);
+            });
+
+            sonodaFacade.register(query);
+        }
+    ], function(err, result) {
+        if (err) return res.status(500).json(err);
+
+        return res.json(listdebtjson);
+    });
+
+    return;
 }
 
 

@@ -1,0 +1,34 @@
+{
+	"data" : [{
+		"user_id" : "1",
+		"user_name" : "Hana Song",
+		"user_pic" : "https://pbs.twimg.com/profile_images/665634024908390400/i5xmKJcQ.png",
+		"status" : -1,
+		"debt_amt" : 20000,
+		"debt_desc" : "patungan makan pizza"
+	},
+	{
+		"user_id" : "1",
+		"user_name" : "Hana Song",
+		"user_pic" : "https://pbs.twimg.com/profile_images/665634024908390400/i5xmKJcQ.png",
+		"status" : 1,
+		"debt_amt" : 15000,
+		"debt_desc" : "bayar tol"
+	},
+	{
+		"user_id" : "1",
+		"user_name" : "Hana Song",
+		"user_pic" : "https://pbs.twimg.com/profile_images/665634024908390400/i5xmKJcQ.png",
+		"status" : 1,
+		"debt_amt" : 13000,
+		"debt_desc" : "pinjem duit di alpa midi"
+	},
+	{
+		"user_id" : "2",
+		"user_name" : "Genji Shimada",
+		"user_pic" : "https://pbs.twimg.com/profile_images/665634024908390400/i5xmKJcQ.png",
+		"status" : 0,
+		"debt_amt" : 80000,
+		"debt_desc" : "makan di sepel"
+	}]
+}

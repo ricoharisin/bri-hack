@@ -188,6 +188,33 @@ sonodaFacade.prototype.getUserDataPayment = function(params) {
     });
 }
 
+sonodaFacade.prototype.login = function(params) {
+    var mysql      = require('mysql');
+    var conf = require('./config.json');
+    var connection = mysql.createConnection(conf.mysql);
+    var self = this;
+
+    connection.connect();
+
+    var q = "select * from ws_user where user_phone = '" + params.user_phone +"' and user_password = '" + params.user_password +"' limit 1;";
+
+    console.log(q);
+
+    connection.query(q ,function(err, rows, fields) {
+        if (!err) {
+            if (rows.length > 0) {
+                self.success(rows);
+            } else {
+                self.error(rows);
+            }
+            connection.end();
+        } else {
+            connection.end();
+            self.error(err);
+        }
+    });
+}
+
 sonodaFacade.prototype.getDebtDataPayment = function(params) {
     var mysql      = require('mysql');
     var conf = require('./config.json');

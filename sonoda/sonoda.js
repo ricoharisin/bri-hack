@@ -90,6 +90,11 @@ sonoda.prototype.start = function() {
         console.log("req %j", req.body);
         self.gantiPINTBank(req.body, res);
     });
+
+    app.post('/v0/login', function (req, res) {
+        console.log("test %j",req.body);
+        self.loginUser(req.body, res);
+    });
     
     
     app.listen(appEnv.port, '0.0.0.0', function() {
@@ -239,6 +244,39 @@ sonoda.prototype.getUserDataPayment = function(params, res) {
     ], function(err, result) {
         var user = result[0];
         return user;
+    });
+
+    return;
+}
+
+sonoda.prototype.loginUser = function(params, res) {
+
+    var asyncTask = require('async');
+    var sonodaFacade = require("./sonoda-facade.js");
+    var self = this;
+
+    asyncTask.waterfall([
+        function(callback) {
+            sonodaFacade.on("success", function(response) {
+                return callback(null, response);
+            });
+
+            sonodaFacade.on("error", function(err) {
+                return callback(err, null);
+            });
+
+            sonodaFacade.login(params);
+        }
+    ], function(err, result) {
+        if (err) 
+        {
+            return res.status(500).json(err);
+        }
+
+        var user = result[0];
+        self.responseGeneration(res, err, result);
+
+        return;
     });
 
     return;
@@ -525,7 +563,7 @@ sonoda.prototype.transferTBank = function(params, res) {
                 self.responseGeneration(res, err, result);
                 return;
             });
-            
+
             return;
         });
 

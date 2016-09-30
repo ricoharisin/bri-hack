@@ -35,13 +35,17 @@ sonodaFacade.prototype.dialognewdebt = function(params) {
 
     var q = "select * from ws_user where user_phone = "+params.user_phone+";";
 
+    console.log(q);
+
     connection.query(q ,function(err, rows, fields) {
-    if (!err) {
-      self.success({ "data" : rows[0]});
-    } else {
-      self.error(err);
-    }
-    });
+        console.log(rows);
+
+        if (!err) {
+          self.success({ "data" : rows[0]});
+        } else {
+          self.error(err);
+        }
+     });
 
     connection.end();
 
@@ -57,7 +61,11 @@ sonodaFacade.prototype.dialognewcredit = function(params) {
 
     var q = "select * from ws_user where user_phone = "+params.user_phone+";";
 
+    console.log(q);
+
     connection.query(q ,function(err, rows, fields) {
+        console.log(rows);
+
     if (!err) {
       self.success({ "data" : rows[0]});
     } else {

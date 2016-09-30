@@ -44,12 +44,12 @@ sonoda.prototype.start = function() {
 
     app.get('/v0/dialognewdebt', function (req, res) {
         console.log("test %j",req.body);
-        self.listcredittest(req.body, res);
+        self.dialognewdebt(req.body, res);
     });
 
     app.get('/v0/dialogcreditdebt', function (req, res) {
         console.log("test %j",req.body);
-        self.listcredittest(req.body, res);
+        self.dialognewcredit(req.body, res);
     });
 
     app.get('/v0/deposit', function (req, res) {

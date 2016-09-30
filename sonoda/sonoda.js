@@ -34,7 +34,7 @@ sonoda.prototype.start = function() {
         self.listcredittest(req.body, res);
     });
 
-    app.get('/v0/deposittest', function (req, res) {
+    app.get('/v0/deposit', function (req, res) {
         console.log("test %j",req.body);
         self.deposittest(req.body, res);
     });

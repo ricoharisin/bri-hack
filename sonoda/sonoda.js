@@ -197,7 +197,7 @@ sonoda.prototype.invitephone = function(query, res) {
      api_secret: '5bd410c755fc3f7a',
      to: params.user_phone,
      from: '080989999',
-     text: 'silahkan download link berikut www.google.com'
+     text: 'Hi temanmu mengundang ke LendMoney untuk mencatat hutang! silahkan kunjungi http://hack-bri-dev.mybluemix.net/register.html'
     });
 
     var options = {

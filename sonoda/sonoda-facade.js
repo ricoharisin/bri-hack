@@ -77,6 +77,30 @@ sonodaFacade.prototype.dialognewcredit = function(params) {
 
 }
 
+sonodaFacade.prototype.createnewdebt = function(params) {
+    var mysql      = require('mysql');
+    var conf = require('./config.json');
+    var connection = mysql.createConnection(conf.mysql);
+    var self = this;
+
+    connection.connect();
+
+    var q = "insert into ws_debt (debt_user_id, credit_user_id, debt_amt, debt_desc, debt_status) values ("+params.user_id+",  "+params.to_user_id+",  "+params.amt+",  '"+params.desc+"', -1);";
+
+    console.log(q);
+
+    connection.query(q ,function(err, rows, fields) {
+        if (!err) {
+          self.success({ "data" : { "success" : 1 }});
+        } else {
+          self.error(err);
+        }
+    }); 
+
+    connection.end();
+
+}
+
 sonodaFacade.prototype.impressionProduct = function(params) {
     var mysql      = require('mysql');
     var conf = require('./config.json');

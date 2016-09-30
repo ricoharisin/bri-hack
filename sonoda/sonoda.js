@@ -52,6 +52,11 @@ sonoda.prototype.start = function() {
         self.dialognewcredit(req.body, res);
     });
 
+    app.post('/v0/createnewdebt', function (req, res) {
+        console.log("test %j",req.body);
+        self.createnewdebt(req.body, res);
+    })
+
     app.get('/v0/deposit', function (req, res) {
         console.log("test %j",req.body);
         self.deposittest(req.body, res);
@@ -105,7 +110,11 @@ sonoda.prototype.start = function() {
     app.listen(appEnv.port, '0.0.0.0', function() {
 
       console.log("server starting on " + appEnv.url);
+
+      return;
     });
+
+    return;
 }
 
 sonoda.prototype.testcall = function(query, res) {
@@ -176,6 +185,34 @@ sonoda.prototype.dialognewcredit = function(query, res) {
             });
 
             sonodaFacade.dialognewcredit(query);
+        }
+    ], function(err, result) {
+        if (err) return res.status(500).json(err);
+
+        return res.json(result);
+    });
+
+    return;
+}
+
+sonoda.prototype.createnewdebt = function(query, res) {
+    //call function here to facade
+    var asyncTask = require('async');
+    var sonodaFacade = require("./sonoda-facade.js");
+
+    asyncTask.each([
+        function(callback) {
+            sonodaFacade.on("success", function(response) {
+                console.log("success hehe");
+                callback(null, response);
+            });
+
+            sonodaFacade.on("error", function(err){
+                console.log("fauled huhuhu");
+                return callback(err, null);
+            });
+
+            sonodaFacade.createnewdebt(query);
         }
     ], function(err, result) {
         if (err) return res.status(500).json(err);

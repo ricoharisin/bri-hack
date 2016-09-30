@@ -131,6 +131,11 @@ sonoda.prototype.start = function() {
         console.log("req %j", req.body);
         self.gantiPINTBank(req.body, res);
     });
+
+    app.post('/v0/fcm', function(req, res) {
+        console.log("req %j", req.body);
+        self.updateGcm(req.body, res);
+    });
     
     
     app.listen(appEnv.port, '0.0.0.0', function() {
@@ -330,6 +335,30 @@ sonoda.prototype.responseGenerationError = function(res, message){
         message : message
     };
     return res.status(500).json(response);
+}
+
+sonoda.prototype.updateGcm = function(query, res) {
+    var mysql = require('mysql');
+    var conf = require('./config.json');
+    var connection = mysql.createConnection(conf.mysql);
+    var self = this;
+    var params = query;
+
+    connection.connect();
+
+    var q = "update ws_user set user_fcm = '" + params.user_fcm+"' where user_id  = '" + params.to_user_id+"';";
+
+    console.log(q);
+
+    connection.query(q ,function(err, rows, fields) {
+        if (!err) {
+          self.responseGeneration(res, null, {"success" : 1});
+        } else {
+          self.responseGenerationError(res, err);
+        }
+
+        connection.destroy();
+    }); 
 }
 
 sonoda.prototype.regiterMerchant = function(params, res) {
@@ -710,7 +739,7 @@ sonoda.prototype.transferTBank = function(params, res) {
 
     var q = "select d.*, d.debt_amt as nominal, a.user_phone as pengirim, b.user_phone as penerima, a.user_pin as pin from ws_debt d " +
         "join ws_user a on d.debt_user_id = a.user_id " + 
-        "join ws_user b on d.credit_user_id = b.user_id where debt_id = "+ debtParam.debt_id +" and debt_status = '-1' limit 1;";
+        "join ws_user b on d.credit_user_id = b.user_id where debt_id = "+ debtParam.debt_id +" and debt_status = '1' limit 1;";
 
     console.log(q);
 
@@ -738,7 +767,7 @@ sonoda.prototype.transferTBank = function(params, res) {
                             }
                             var updateParam = {
                                 debt_id : debt.debt_id,
-                                debt_status : '1'
+                                debt_status : '0'
                             }
                             var q = "update ws_debt set debt_status = '" + updateParam.debt_status +"' where debt_id = "+ updateParam.debt_id +";";
 

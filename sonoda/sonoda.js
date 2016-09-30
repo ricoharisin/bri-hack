@@ -1,6 +1,10 @@
 var eventEmitter = new require('events').EventEmitter();
 var sonoda = function() {};
 
+var kodeMerchant = 80077;
+var passwordMerchant = "password";
+var telpNumber = '085747212167';
+
 sonoda.prototype = Object.create(require('events').EventEmitter.prototype);
 
 sonoda.prototype.start = function() {
@@ -125,6 +129,16 @@ sonoda.prototype.regiterMerchant = function(params, res) {
     asyncTask.waterfall([
         function(callback) {
             sonodaFacade.on("success", function(response) {
+                /*{
+                  "ResponseCode": "00",
+                  "ResponseDescription": "Sukses",
+                  "KodeMerchant": "80077",
+                  "Password": "password",
+                  "PinNasabah": null,
+                  "Saldo": null,
+                  "Token": null,
+                  "Nama": "ARM Teadm"
+                }*/
                 return callback(null, response);
             });
 
@@ -151,6 +165,16 @@ sonoda.prototype.registrasiTBank = function(params, res) {
         function(callback) {
             sonodaFacade.on("success", function(response) {
                 return callback(null, response);
+                /*{
+                  "ResponseCode": "00",
+                  "ResponseDescription": "Sukses",
+                  "KodeMerchant": null,
+                  "Password": null,
+                  "PinNasabah": "900870",
+                  "Saldo": null,
+                  "Token": null,
+                  "Nama": "Rico"
+                }*/
             });
 
             sonodaFacade.on("error", function(err) {
@@ -176,11 +200,22 @@ sonoda.prototype.infoSaldoTBank = function(params, res) {
         function(callback) {
             sonodaFacade.on("success", function(response) {
                 return callback(null, response);
+                /*{
+                  "ResponseCode": "00",
+                  "ResponseDescription": "Sukses",
+                  "KodeMerchant": null,
+                  "Password": null,
+                  "PinNasabah": null,
+                  "Saldo": "2000000.00",
+                  "Token": null,
+                  "Nama": null
+                }*/
             });
 
             sonodaFacade.on("error", function(err) {
                 return callback(err, null);
             });
+
 
             sonodaFacade.infoSaldoTBank(params);
         }
@@ -226,6 +261,16 @@ sonoda.prototype.requestTokenTBank = function(params, res) {
         function(callback) {
             sonodaFacade.on("success", function(response) {
                 return callback(null, response);
+                /*{
+                  "ResponseCode": "00",
+                  "ResponseDescription": "Sukses",
+                  "KodeMerchant": null,
+                  "Password": null,
+                  "PinNasabah": null,
+                  "Saldo": null,
+                  "Token": "786788",
+                  "Nama": null
+                }*/
             });
 
             sonodaFacade.on("error", function(err) {
@@ -251,6 +296,16 @@ sonoda.prototype.topUpTBank = function(params, res) {
         function(callback) {
             sonodaFacade.on("success", function(response) {
                 return callback(null, response);
+                /*{
+                  "ResponseCode": "00",
+                  "ResponseDescription": "Sukses",
+                  "KodeMerchant": null,
+                  "Password": null,
+                  "PinNasabah": null,
+                  "Saldo": null,
+                  "Token": null,
+                  "Nama": null
+                }*/
             });
 
             sonodaFacade.on("error", function(err) {
@@ -276,6 +331,17 @@ sonoda.prototype.transferTBank = function(params, res) {
         function(callback) {
             sonodaFacade.on("success", function(response) {
                 return callback(null, response);
+
+                /*{
+                  "ResponseCode": "00",
+                  "ResponseDescription": "Sukses",
+                  "KodeMerchant": null,
+                  "Password": null,
+                  "PinNasabah": null,
+                  "Saldo": "20000.00",
+                  "Token": null,
+                  "Nama": null
+                }*/
             });
 
             sonodaFacade.on("error", function(err) {
@@ -302,6 +368,16 @@ sonoda.prototype.belanjaTBank = function(params, res) {
         function(callback) {
             sonodaFacade.on("success", function(response) {
                 return callback(null, response);
+                /*{
+                  "ResponseCode": "00",
+                  "ResponseDescription": "Sukses",
+                  "KodeMerchant": null,
+                  "Password": null,
+                  "PinNasabah": null,
+                  "Saldo": "1999000.00",
+                  "Token": null,
+                  "Nama": null
+                }*/
             });
 
             sonodaFacade.on("error", function(err) {

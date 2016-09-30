@@ -68,7 +68,7 @@ sonoda.prototype.listdebt = function(query, res) {
     var sonodaFacade = require("./sonoda-facade.js");
     var listdebtjson = require("./listdebt.json");
 
-    asyncTask.waterfall([
+    /*asyncTask.waterfall([
         function(callback) {
             sonodaFacade.on("success", function(response) {
                 return callback(null, response);
@@ -84,7 +84,9 @@ sonoda.prototype.listdebt = function(query, res) {
         if (err) return res.status(500).json(err);
 
         return res.json(listdebtjson);
-    });
+    });*/
+
+    res.json(listdebtjson);
 
     return;
 }

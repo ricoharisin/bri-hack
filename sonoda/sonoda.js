@@ -390,10 +390,10 @@ sonoda.prototype.loginUser = function(params, res) {
 
     console.log(q);
 
-    connection.query(q ,function(err, rows, fields) {
+    connection.query(q ,function(err, result, fields) {
         connection.end();
         if (!err) {
-            if (rows.length > 0) {
+            if (result.length > 0) {
                 var user = result[0];
                 self.responseGeneration(res, err, result);
             } else {

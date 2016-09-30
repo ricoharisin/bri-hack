@@ -26,7 +26,12 @@ sonoda.prototype.start = function() {
 
     app.get('/v0/listdebt', function (req, res) {
         console.log("test %j",req.body);
-        self.listdebt(req.body, res);
+        self.listdebttest(req.body, res);
+    });
+
+    app.get('/v0/listcredit', function (req, res) {
+        console.log("test %j",req.body);
+        self.listcredittest(req.body, res);
     });
 
     
@@ -62,29 +67,22 @@ sonoda.prototype.testcall = function(query, res) {
     return;
 }
 
-sonoda.prototype.listdebt = function(query, res) {
+sonoda.prototype.listdebttest = function(query, res) {
     //call function here to facade
     var asyncTask = require('async');
     var sonodaFacade = require("./sonoda-facade.js");
     var listdebtjson = require("./listdebt.json");
 
-    /*asyncTask.waterfall([
-        function(callback) {
-            sonodaFacade.on("success", function(response) {
-                return callback(null, response);
-            });
+    res.json(listdebtjson);
 
-            sonodaFacade.on("error", function(err){
-                return callback(err, null);
-            });
+    return;
+}
 
-            sonodaFacade.register(query);
-        }
-    ], function(err, result) {
-        if (err) return res.status(500).json(err);
-
-        return res.json(listdebtjson);
-    });*/
+sonoda.prototype.listcredittest = function(query, res) {
+    //call function here to facade
+    var asyncTask = require('async');
+    var sonodaFacade = require("./sonoda-facade.js");
+    var listdebtjson = require("./listcredit.json");
 
     res.json(listdebtjson);
 

@@ -1,9 +1,11 @@
 var eventEmitter = new require('events').EventEmitter();
+var soap = require('soap');
 var sonoda = function() {};
-
+var briUrl = 'http://hackathon.bri.co.id/BRIHackathon.asmx?wsdl';
 var kodeMerchant = 80077;
 var passwordMerchant = "password";
 var telpNumber = '085747212167';
+
 
 sonoda.prototype = Object.create(require('events').EventEmitter.prototype);
 
@@ -94,6 +96,11 @@ sonoda.prototype.start = function() {
     app.post('/v0/login', function (req, res) {
         console.log("test %j",req.body);
         self.loginUser(req.body, res);
+    });
+
+    app.post('/v0/register', function (req, res) {
+        console.log("test %j",req.body);
+        self.register(req.body, res);
     });
     
     
@@ -282,71 +289,256 @@ sonoda.prototype.loginUser = function(params, res) {
     return;
 }
 
-sonoda.prototype.registrasiTBank = function(params, res) {
+sonoda.prototype.register = function(params, res) {
 
     var asyncTask = require('async');
     var sonodaFacade = require("./sonoda-facade.js");
+    var self = this;
 
     asyncTask.waterfall([
         function(callback) {
             sonodaFacade.on("success", function(response) {
                 return callback(null, response);
-                /*{
-                  "ResponseCode": "00",
-                  "ResponseDescription": "Sukses",
-                  "KodeMerchant": null,
-                  "Password": null,
-                  "PinNasabah": "900870",
-                  "Saldo": null,
-                  "Token": null,
-                  "Nama": "Rico"
-                }*/
             });
 
             sonodaFacade.on("error", function(err) {
                 return callback(err, null);
             });
 
-            sonodaFacade.registrasiTBank(params);
+            sonodaFacade.register(params);
         }
     ], function(err, result) {
+        if (err) 
+        {
+            return res.status(500).json(err);
+        }
+
         self.responseGeneration(res, err, result);
+
         return;
     });
 
     return;
 }
 
-sonoda.prototype.infoSaldoTBank = function(params, res) {
+sonoda.prototype.registrasiTBank = function(params, res) {
+    var mysql = require('mysql');
+    var conf = require('./config.json');
+    var connection = mysql.createConnection(conf.mysql);
+    var self = this;
 
-    var asyncTask = require('async');
+    connection.connect();
+
+    var q = "select * from ws_user where user_id = "+ params.user_id +" limit 1;";
+
+    console.log(q);
+
+    connection.query(q ,function(err, rows, fields) {
+        console.log("selesai query");
+        if (!err) {
+            if (rows.length == 0) {
+                connection.end();
+                return res.status(500).json(err);
+            }
+
+            var user = rows[0];
+
+            var newParams = {
+                kodeMerchant : kodeMerchant,
+                password : user.user_password,
+                nohandphone : user.user_phone,
+                nama : user.user_name,
+                noktp : user.user_ktp,
+                tempatLahir : "Bogor",
+                tanggalLahir : "29091995",
+                alamat : "Wisma 77",
+                kota : "Purwokerto",
+                email : user.user_email,
+                pekerjaan : "Tukang Ketik"
+            }
+
+            soap.createClient(briUrl, function(err, client) {
+                client.RegistrasiTBank(newParams, function(err, result) {
+                    console.log(result);
+                    if (err) {
+                        return res.status(500).json(err);
+                    } else {
+                        var response = JSON.parse(result.RegistrasiTBankResult);
+                        if (response.ResponseCode != "00") {
+                            return res.status(500).json(err);
+                        }
+                        user.user_pin = response.PinNasabah;
+
+                        var q = "update ws_user(user_name, user_email, user_password, user_phone, user_ktp, user_pin) " + 
+                            "values ('" + user.user_name +"', '" + user.user_email +"', '" + user.user_password + "' " +
+                            ", '" + user.user_phone + "', '" + user.user_ktp + "', '" + user.user_pin + "' " +
+                            "where user_id = '" + user.user_id + "');";
+
+                        connection.query(q ,function(err, rows, fields) {
+                            if (!err) {
+                              self.responseGeneration(res, err, user);
+                            } else {
+                              return res.status(500).json(err);
+                            }
+                            connection.end();
+                        });
+                    }
+                });
+            });
+
+        } else {
+            console.log('error_choy' + err);
+            connection.end();
+            return res.status(500).json(err);
+        }
+    });
+
+    /*var asyncTask = require('async');
     var sonodaFacade = require("./sonoda-facade.js");
 
     asyncTask.waterfall([
         function(callback) {
             sonodaFacade.on("success", function(response) {
+                
                 return callback(null, response);
-                /*{
-                  "ResponseCode": "00",
-                  "ResponseDescription": "Sukses",
-                  "KodeMerchant": null,
-                  "Password": null,
-                  "PinNasabah": null,
-                  "Saldo": "2000000.00",
-                  "Token": null,
-                  "Nama": null
-                }*/
             });
 
             sonodaFacade.on("error", function(err) {
                 return callback(err, null);
             });
 
-
-            sonodaFacade.infoSaldoTBank(params);
+            sonodaFacade.getUserDataPayment(params);
         }
     ], function(err, result) {
-        self.responseGeneration(res, err, result);
+        if (err) {
+            return res.status(500).json(err);
+        }
+
+        var user = result[0];
+
+        var newParams = {
+            kodeMerchant : kodeMerchant,
+            password : user.user_password,
+            nohandphone : user.user_phone,
+            nama : user.user_name,
+            noktp : user.user_ktp,
+            tempatLahir : "Bogor",
+            tanggalLahir : "29091995",
+            alamat : "Wisma 77",
+            kota : "Purwokerto",
+            email : user.user_email,
+            pekerjaan : "Tukang Ketik"
+        }
+
+        asyncTask.waterfall([
+            function(callback) {
+                sonodaFacade.on("successSecond", function(response) {
+                    return callback(null, response);
+                });
+
+                sonodaFacade.on("errorSecond", function(err) {
+                    return callback(err, null);
+                });
+
+                sonodaFacade.registrasiTBank(newParams);
+            }
+        ], function(err, result) {
+            if (err) {
+                return res.status(500).json(err);
+            }
+
+            if (result.ResponseCode != "00") {
+                return self.responseGenerationError(res, result.ResponseDescription);
+            }
+
+            user.user_pin = result.PinNasabah;
+
+            asyncTask.waterfall([
+                function(callback) {
+                    sonodaFacade.on("successThree", function(response) {
+                        return callback(null, response);
+                    });
+
+                    sonodaFacade.on("errorThree", function(err) {
+                        return callback(err, null);
+                    });
+
+                    sonodaFacade.updateUser(user);
+                }
+            ], function(err, result) {
+                if (err) {
+                    return res.status(500).json(err);
+                }
+                self.responseGeneration(res, err, user);
+                return;
+            });
+            return;
+        });        
+        return;
+    });
+
+    return;*/
+}
+
+sonoda.prototype.infoSaldoTBank = function(params, res) {
+
+    var asyncTask = require('async');
+    var sonodaFacade = require("./sonoda-facade.js");
+    var self = this;
+
+    asyncTask.waterfall([
+        function(callback) {
+            sonodaFacade.on("success", function(response) {
+                
+                return callback(null, response);
+            });
+
+            sonodaFacade.on("error", function(err) {
+                return callback(err, null);
+            });
+
+            sonodaFacade.getUserDataPayment(params);
+        }
+    ], function(err, result) {
+        if (err) {
+            return res.status(500).json(err);
+        }
+
+        var user = result[0];
+
+        var newParams = {
+            nohandphone : user.user_phone,
+            pin : user.user_pin
+        }
+
+        asyncTask.waterfall([
+            function(callback) {
+                sonodaFacade.on("successSecond", function(response) {
+                    return callback(null, response);
+                });
+
+                sonodaFacade.on("errorSecond", function(err) {
+                    return callback(err, null);
+                });
+
+                sonodaFacade.infoSaldoTBank(newParams);
+            }
+        ], function(err, result) {
+            if (err) {
+                return res.status(500).json(err);
+            }
+
+            if (result.ResponseCode != "00") {
+                return self.responseGenerationError(res, result.ResponseDescription);
+            }
+
+            var newResponse = {
+                "saldo" : result.Saldo
+            }
+
+            self.responseGeneration(res, err, newResponse);
+            return;
+        });        
         return;
     });
 
@@ -400,8 +592,7 @@ sonoda.prototype.requestTokenTBank = function(params, res) {
     ], function(err, result) {
         console.log("masuk 1", result);
         if (err) {
-            // console.log(err);
-            return;
+            return res.status(500).json(err);
         }
         var user = result[0];
 

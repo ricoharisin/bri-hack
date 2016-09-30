@@ -4,25 +4,48 @@ var sonodaFacade = function() {};
 sonodaFacade.prototype = Object.create(require('events').EventEmitter.prototype);
 
 sonodaFacade.prototype.register = function(params) {
-  var mysql      = require('mysql');
-	var conf = require('./config.json');
-	var connection = mysql.createConnection(conf.mysql);
-	var self = this;
+    var mysql = require('mysql');
+    var conf = require('./config.json');
+    var connection = mysql.createConnection(conf.mysql);
+    var self = this;
 
-	connection.connect();
+    connection.connect();
 
-  var q = "insert into test_table values (0, 'asdasd');";
+    var q = "insert into ws_user(user_name, user_email, user_password, user_phone, user_ktp) " + 
+        "values ('" + params.user_name +"', '" + params.user_email +"', '" + params.user_password + "' " +
+        ", '" + params.user_phone + "', '" + params.user_ktp + "' );";
 
-  connection.query(q ,function(err, rows, fields) {
-    if (!err) {
-      self.success({ "success" : 1});
-    } else {
-      self.error(err);
-    }
-  });
+    connection.query(q ,function(err, rows, fields) {
+        if (!err) {
+          self.success({ "success" : 1});
+        } else {
+          self.error(err);
+        }
+        connection.end();
+    });
+}
 
-  connection.end();
+sonodaFacade.prototype.updateUser = function(params) {
+    var mysql = require('mysql');
+    var conf = require('./config.json');
+    var connection = mysql.createConnection(conf.mysql);
+    var self = this;
 
+    connection.connect();
+
+    var q = "update ws_user(user_name, user_email, user_password, user_phone, user_ktp, user_pin) " + 
+        "values ('" + params.user_name +"', '" + params.user_email +"', '" + params.user_password + "' " +
+        ", '" + params.user_phone + "', '" + params.user_ktp + "', '" + params.user_pin + "' " +
+        "where user_id = '" + params.user_id + "');";
+
+    connection.query(q ,function(err, rows, fields) {
+        if (!err) {
+          self.success({ "success" : 1});
+        } else {
+          self.error(err);
+        }
+        connection.end();
+    });
 }
 
 sonodaFacade.prototype.impressionProduct = function(params) {
@@ -172,7 +195,7 @@ sonodaFacade.prototype.getUserDataPayment = function(params) {
 
     connection.connect();
 
-    var q = "select * from ws_user where user_id = "+params.user_id+" limit 1;";
+    var q = "select * from ws_user where user_id = "+ params.user_id +" limit 1;";
 
     console.log(q);
 
@@ -301,11 +324,11 @@ sonodaFacade.prototype.registrasiTBank = function(params) {
     sonodaCore.registrasiTBank(params);
 
     sonodaCore.on("success", function(response) {
-        self.success(response);
+        self.successSecond(response);
     });
 
     sonodaCore.on("error", function(err) {
-        self.error(err);
+        self.errorSecond(err);
     });
 }
 
@@ -316,11 +339,11 @@ sonodaFacade.prototype.infoSaldoTBank = function(params) {
     sonodaCore.infoSaldoTBank(params);
 
     sonodaCore.on("success", function(response) {
-        self.success(response);
+        self.successSecond(response);
     });
 
     sonodaCore.on("error", function(err) {
-        self.error(err);
+        self.errorSecond(err);
     });
 }
 

@@ -136,7 +136,11 @@ sonoda.prototype.start = function() {
         console.log("req %j", req.body);
         self.updateGcm(req.body, res);
     });
-    
+
+    app.post('/v0/tagihnotif', function(req, res) {
+        console.log("req %j", req.body);
+        self.sendTagihNotif(req.body, res);
+    });
     
     app.listen(appEnv.port, '0.0.0.0', function() {
 
@@ -346,7 +350,7 @@ sonoda.prototype.updateGcm = function(query, res) {
 
     connection.connect();
 
-    var q = "update ws_user set user_fcm = '" + params.user_fcm+"' where user_id  = '" + params.to_user_id+"';";
+    var q = "update ws_user set user_fcm = '" + params.user_fcm+"' where user_id  = '" + params.user_id+"';";
 
     console.log(q);
 
@@ -359,6 +363,53 @@ sonoda.prototype.updateGcm = function(query, res) {
 
         connection.destroy();
     }); 
+}
+
+sonoda.prototype.sendTagihNotif = function(params, res) {
+    var mysql = require('mysql');
+    var conf = require('./config.json');
+    var connection = mysql.createConnection(conf.mysql);
+    var self = this;
+
+    connection.connect();
+
+    var q = "select a.debt_id as debt_id, a.debt_amt as nominal, b.user_name as penghutang, b.user_fcm as fcm, c.user_name as pemberi from ws_debt a join ws_user b on b.user_id = a.debt_user_id join ws_user c on c.user_id = a.credit_user_id where debt_id='" + params.user_fcm+"';";
+
+    console.log(q);
+
+    connection.query(q ,function(err, rows, fields) {
+        if (!err) {
+            var obj = rows[0];
+            var message = { //this may vary according to the message type (single recipient, multicast, topic, et cetera)
+                to: obj.fcm, 
+                
+                notification: {
+                    title: 'Tagihan baru dari Lend Money', 
+                    body: 'Tap untuk membuka' 
+                },
+                
+                data: {  //you can send only notification or only data(or include both)
+                    credit_name: obj.pemberi,
+                    debt_name: obj.penghutang,
+                    nominal: obj.nominal,
+                    debt_id : obj.debt_id
+                }
+            }
+            fcm.send(message, function(err, response){
+                if (err) {
+                    self.responseGeneration(res, null, {"success" : 1});
+                } else {
+                    self.responseGenerationError(res, {"message" : "ga bisa kirim"});
+                }
+            });
+        } else {
+            self.responseGenerationError(res, {"message" : "ga bisa responseGeneration"});
+        }
+
+        connection.destroy();
+    }); 
+
+    
 }
 
 sonoda.prototype.regiterMerchant = function(params, res) {

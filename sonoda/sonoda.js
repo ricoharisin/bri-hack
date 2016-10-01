@@ -1119,31 +1119,6 @@ sonoda.prototype.topUpTBank = function(params, res) {
     return;
 }
 
-sonoda.prototype.transferTBank = function(params, res) {
-
-    var asyncTask = require('async');
-    var sonodaFacade = require("./sonoda-facade.js");
-
-    asyncTask.waterfall([
-        function(callback) {
-            sonodaFacade.on("success", function(response) {
-                return callback(null, response);
-            });
-
-            sonodaFacade.on("error", function(err) {
-                return callback(err, null);
-            });
-
-            sonodaFacade.transferTBank(params);
-        }
-    ], function(err, result) {
-        self.responseGeneration(res, err, result);
-        return;
-    });
-
-    return;
-}
-
 
 sonoda.prototype.belanjaTBank = function(params, res) {
 
